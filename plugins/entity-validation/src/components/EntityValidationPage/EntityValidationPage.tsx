@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import React, { useState } from 'react';
-import { Button, Content, Header, Page } from '@backstage/core-components';
+import { LinkButton, Content, Header, Page } from '@backstage/core-components';
 import { EntityTextArea } from '../EntityTextArea';
 import { Grid, TextField } from '@material-ui/core';
 import { CatalogProcessorResult } from '../../types';
@@ -83,14 +84,14 @@ export const EntityValidationPage = (props: {
           <Grid item md={3} xs={12}>
             <Grid container alignItems="center" style={{ height: '100%' }}>
               <Grid item>
-                <Button
+                <LinkButton
                   style={{ textDecoration: 'none' }}
                   variant="outlined"
                   to="#"
                   onClick={parseYaml}
                 >
                   Validate
-                </Button>
+                </LinkButton>
               </Grid>
             </Grid>
           </Grid>
