@@ -68,7 +68,7 @@ export type ActionContext<TActionInput extends JsonObject> = {
 };
 
 /** @public */
-export type TemplateAction<TActionInput = unknown> = {
+export type TemplateAction<TActionInput extends {} = {}> = {
   id: string;
   description?: string;
   examples?: { description: string; example: string }[];
