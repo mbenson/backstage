@@ -14,37 +14,49 @@
  * limitations under the License.
  */
 
-import { Config } from '@backstage/config';
 import {
   PluginEndpointDiscovery,
   TokenManager,
 } from '@backstage/backend-common';
 import {
+  readTaskScheduleDefinitionFromConfig,
+  TaskScheduleDefinition,
+} from '@backstage/backend-tasks';
+import {
   CatalogApi,
   CatalogClient,
+  EntityFilterQuery,
   GetEntitiesRequest,
 } from '@backstage/catalog-client';
-import { DocumentCollatorFactory } from '@backstage/plugin-search-common';
-import { catalogEntityReadPermission } from '@backstage/plugin-catalog-common/alpha';
+import { stringifyEntityRef } from '@backstage/catalog-model';
+import { Config } from '@backstage/config';
+import { InputError } from '@backstage/errors';
 import { CatalogEntityDocument } from '@backstage/plugin-catalog-common';
+import { catalogEntityReadPermission } from '@backstage/plugin-catalog-common/alpha';
 import { Permission } from '@backstage/plugin-permission-common';
+import { DocumentCollatorFactory } from '@backstage/plugin-search-common';
 import { Readable } from 'stream';
 import { CatalogCollatorEntityTransformer } from './CatalogCollatorEntityTransformer';
 import { defaultCatalogCollatorEntityTransformer } from './defaultCatalogCollatorEntityTransformer';
-import { stringifyEntityRef } from '@backstage/catalog-model';
 
 /** @public */
 export type DefaultCatalogCollatorFactoryOptions = {
   discovery: PluginEndpointDiscovery;
   tokenManager: TokenManager;
-  locationTemplate?: string;
-  filter?: GetEntitiesRequest['filter'];
-  batchSize?: number;
   catalogClient?: CatalogApi;
+  /**
+   * Allows you to customize how entities are shaped into documents.
+   */
   entityTransformer?: CatalogCollatorEntityTransformer;
 };
 
-/** @public */
+const configKey = 'search.collators.catalog';
+
+/**
+ * Collates entities from the Catalog into documents for the search backend.
+ *
+ * @public
+ */
 export class DefaultCatalogCollatorFactory implements DocumentCollatorFactory {
   public readonly type = 'software-catalog';
   public readonly visibilityPermission: Permission =
@@ -58,13 +70,50 @@ export class DefaultCatalogCollatorFactory implements DocumentCollatorFactory {
   private entityTransformer: CatalogCollatorEntityTransformer;
 
   static fromConfig(
-    _config: Config,
+    configRoot: Config,
     options: DefaultCatalogCollatorFactoryOptions,
   ) {
-    return new DefaultCatalogCollatorFactory(options);
+    const config = configRoot.getOptionalConfig(configKey);
+    if (!config) {
+      throw new InputError(`No config provided in ${configKey}`);
+    }
+
+    let schedule: TaskScheduleDefinition;
+    const scheduleConfig = config.getOptionalConfig('schedule');
+    if (scheduleConfig) {
+      try {
+        schedule = readTaskScheduleDefinitionFromConfig(scheduleConfig);
+      } catch (error) {
+        throw new InputError(`Invalid schedule at ${configKey}, ${error}`);
+      }
+    } else {
+      schedule = {
+        frequency: { minutes: 10 },
+        timeout: { minutes: 15 },
+        initialDelay: { seconds: 3 },
+      };
+    }
+
+    return {
+      schedule,
+      collatorFactory: new DefaultCatalogCollatorFactory({
+        ...options,
+        locationTemplate: config.getOptionalString('locationTemplate'),
+        filter: config.getOptionalConfig('filter')?.get<EntityFilterQuery>(),
+        batchSize: config.getOptionalNumber('batchSize'),
+      }),
+    };
   }
 
-  private constructor(options: DefaultCatalogCollatorFactoryOptions) {
+  private constructor(options: {
+    locationTemplate?: string;
+    filter?: GetEntitiesRequest['filter'];
+    batchSize?: number;
+    entityTransformer?: CatalogCollatorEntityTransformer;
+    discovery: PluginEndpointDiscovery;
+    tokenManager: TokenManager;
+    catalogClient?: CatalogApi;
+  }) {
     const {
       batchSize,
       discovery,

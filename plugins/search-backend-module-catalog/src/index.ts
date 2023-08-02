@@ -15,8 +15,9 @@
  */
 
 /**
- * @packageDocumentation
  * A module for the search backend that exports Catalog modules.
+ *
+ * @packageDocumentation
  */
 
 export * from './collators';
