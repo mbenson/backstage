@@ -11,6 +11,11 @@ import { TranslationRef } from '@backstage/core-plugin-api/alpha';
 export const CatalogApi: Extension<{}>;
 
 // @alpha (undocumented)
+export const CatalogSearchResultListItemExtension: Extension<{
+  noTrack?: boolean | undefined;
+}>;
+
+// @alpha (undocumented)
 export const catalogTranslationRef: TranslationRef<
   'catalog',
   {
