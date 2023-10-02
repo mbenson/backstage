@@ -51,6 +51,9 @@ const IndexPage = createPageExtension({
           <div>
             <Link to="/search">Search</Link>
           </div>
+          <div>
+            <Link to="/Settings">Settings</Link>
+          </div>
         </div>
       );
     };
