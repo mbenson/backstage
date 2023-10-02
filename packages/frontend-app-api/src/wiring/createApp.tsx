@@ -57,8 +57,13 @@ import {
   ApiFactoryRegistry,
   ApiProvider,
   ApiResolver,
-  AppThemeSelector,
 } from '@backstage/core-app-api';
+
+import {
+  AppLanguageSelector,
+  AppThemeSelector,
+  I18nextTranslationApi,
+} from '@backstage/core-app-api/alpha';
 
 // TODO: Get rid of all of these
 // eslint-disable-next-line @backstage/no-relative-monorepo-imports
@@ -82,6 +87,10 @@ import {
 import { BrowserRouter, Route } from 'react-router-dom';
 import { SidebarItem } from '@backstage/core-components';
 import { DarkTheme, LightTheme } from '../extensions/themes';
+import {
+  appLanguageApiRef,
+  translationApiRef,
+} from '@backstage/core-plugin-api/alpha';
 
 /** @public */
 export interface ExtensionTreeNode {
@@ -443,6 +452,21 @@ function createApiHolder(
     api: configApiRef,
     deps: {},
     factory: () => configApi,
+  });
+
+  factoryRegistry.register('static', {
+    api: appLanguageApiRef,
+    deps: {},
+    factory: () => AppLanguageSelector.createWithStorage(),
+  });
+
+  factoryRegistry.register('default', {
+    api: translationApiRef,
+    deps: { languageApi: appLanguageApiRef },
+    factory: ({ languageApi }) =>
+      I18nextTranslationApi.create({
+        languageApi,
+      }),
   });
 
   // TODO: ship these as default extensions instead
