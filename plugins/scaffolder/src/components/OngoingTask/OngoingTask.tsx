@@ -48,6 +48,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+/**
+ * @public
+ */
 export const OngoingTask = (props: {
   TemplateOutputsComponent?: React.ComponentType<{
     output?: ScaffolderTaskOutput;
