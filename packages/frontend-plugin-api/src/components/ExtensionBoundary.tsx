@@ -15,15 +15,68 @@
  */
 
 import React, { ReactNode } from 'react';
+import {
+  useApp,
+  RouteRef,
+  AnalyticsContext,
+  PluginErrorBoundary,
+  BackstagePlugin as LegacyBackstagePlugin,
+} from '@backstage/core-plugin-api';
 import { BackstagePlugin } from '../wiring';
+
+function hasTitle(routeRef?: any): routeRef is { title: string } {
+  return routeRef?.title;
+}
+
+export function legacyPluginFrom(
+  source?: BackstagePlugin,
+): LegacyBackstagePlugin | undefined {
+  if (!source) return undefined;
+
+  const notImplemented = () => {
+    throw new Error('Not implemented in legacy plugin compatibility layer');
+  };
+
+  return {
+    getId(): string {
+      return source.id;
+    },
+    get routes() {
+      return {};
+    },
+    get externalRoutes() {
+      return {};
+    },
+    getApis: notImplemented,
+    getFeatureFlags: notImplemented,
+    provide: notImplemented,
+  };
+}
 
 /** @public */
 export interface ExtensionBoundaryProps {
-  children: ReactNode;
+  id: string;
   source?: BackstagePlugin;
+  routeRef?: RouteRef;
+  children: ReactNode;
 }
 
 /** @public */
 export function ExtensionBoundary(props: ExtensionBoundaryProps) {
-  return <>{props.children}</>;
+  const { id, source, routeRef, children } = props;
+
+  const app = useApp();
+  const plugin = legacyPluginFrom(source);
+
+  const attributes = {
+    extension: id,
+    pluginId: plugin?.getId(),
+    routeRef: hasTitle(routeRef) ? routeRef.title : undefined,
+  };
+
+  return (
+    <PluginErrorBoundary app={app} plugin={plugin}>
+      <AnalyticsContext attributes={attributes}>{children}</AnalyticsContext>
+    </PluginErrorBoundary>
+  );
 }
