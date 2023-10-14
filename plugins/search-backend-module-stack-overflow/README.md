@@ -10,7 +10,7 @@ Add the module package as a dependency:
 
 ```bash
 # From your Backstage root directory
-yarn add --cwd packages/backend @backstage/plugin-search-backend-module-stack-overflow
+yarn add --cwd packages/backend @backstage/plugin-search-backend-module-stack-overflow-collator
 ```
 
 Add the collator to your backend instance, along with the search plugin itself:
@@ -22,7 +22,9 @@ import { createBackend } from '@backstage/backend-defaults';
 const backend = createBackend();
 backend.add(import('@backstage/plugin-search-backend/alpha'));
 backend.add(
-  import('@backstage/plugin-search-backend-module-stack-overflow/alpha'),
+  import(
+    '@backstage/plugin-search-backend-module-stack-overflow-collator/alpha'
+  ),
 );
 backend.start();
 ```
