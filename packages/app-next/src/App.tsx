@@ -26,6 +26,7 @@ import {
 } from '@backstage/frontend-plugin-api';
 import { entityRouteRef } from '@backstage/plugin-catalog-react';
 import techdocsPlugin from '@backstage/plugin-techdocs/alpha';
+import catalogPlugin from '@backstage/plugin-catalog/alpha';
 
 /*
 
@@ -76,6 +77,9 @@ const app = createApp({
   ],
   bindRoutes({ bind }) {
     bind(pagesPlugin.externalRoutes, { pageX: pagesPlugin.routes.pageX });
+    bind(catalogPlugin.externalRoutes, {
+      viewTechDoc: techdocsPlugin.routes.docRoot,
+    });
   },
 });
 

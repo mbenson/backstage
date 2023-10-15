@@ -6,11 +6,11 @@
 /// <reference types="react" />
 
 import { AnyExtensionInputMap } from '@backstage/frontend-plugin-api';
-import { AnyExternalRoutes } from '@backstage/core-plugin-api';
-import { AnyRoutes } from '@backstage/core-plugin-api';
 import { BackstagePlugin } from '@backstage/frontend-plugin-api';
 import { Extension } from '@backstage/frontend-plugin-api';
+import { ExternalRouteRef } from '@backstage/core-plugin-api';
 import { PortableSchema } from '@backstage/frontend-plugin-api';
+import { RouteRef } from '@backstage/core-plugin-api';
 
 // @alpha (undocumented)
 export const CatalogApi: Extension<{}>;
@@ -32,7 +32,34 @@ export function createCatalogFilterExtension<
 }): Extension<TConfig>;
 
 // @alpha (undocumented)
-const _default: BackstagePlugin<AnyRoutes, AnyExternalRoutes>;
+const _default: BackstagePlugin<
+  {
+    catalogIndex: RouteRef<undefined>;
+    catalogEntity: RouteRef<{
+      name: string;
+      kind: string;
+      namespace: string;
+    }>;
+  },
+  {
+    viewTechDoc: ExternalRouteRef<
+      {
+        name: string;
+        kind: string;
+        namespace: string;
+      },
+      true
+    >;
+    createComponent: ExternalRouteRef<undefined, true>;
+    createFromTemplate: ExternalRouteRef<
+      {
+        namespace: string;
+        templateName: string;
+      },
+      true
+    >;
+  }
+>;
 export default _default;
 
 // @alpha (undocumented)

@@ -44,7 +44,12 @@ import {
 } from '@backstage/plugin-catalog-react';
 import { createSearchResultListItemExtension } from '@backstage/plugin-search-react/alpha';
 import { DefaultStarredEntitiesApi } from './apis';
-import { rootRouteRef } from './routes';
+import {
+  createComponentRouteRef,
+  createFromTemplateRouteRef,
+  rootRouteRef,
+  viewTechDocRouteRef,
+} from './routes';
 import { Progress } from '@backstage/core-components';
 import { useEntityFromUrl } from './components/CatalogEntityPage/useEntityFromUrl';
 
@@ -252,6 +257,15 @@ const CatalogNavItem = createNavItemExtension({
 /** @alpha */
 export default createPlugin({
   id: 'catalog',
+  routes: {
+    catalogIndex: rootRouteRef,
+    catalogEntity: entityRouteRef,
+  },
+  externalRoutes: {
+    viewTechDoc: viewTechDocRouteRef,
+    createComponent: createComponentRouteRef,
+    createFromTemplate: createFromTemplateRouteRef,
+  },
   extensions: [
     CatalogApi,
     StarredEntitiesApi,
