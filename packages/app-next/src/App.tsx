@@ -16,16 +16,17 @@
 
 import React from 'react';
 import { createApp } from '@backstage/frontend-app-api';
-import { pagesPlugin } from './examples/pagesPlugin';
-import graphiqlPlugin from '@backstage/plugin-graphiql/alpha';
-import techRadarPlugin from '@backstage/plugin-tech-radar/alpha';
-import userSettingsPlugin from '@backstage/plugin-user-settings/alpha';
 import {
   createExtensionOverrides,
   createPageExtension,
 } from '@backstage/frontend-plugin-api';
-import { entityRouteRef } from '@backstage/plugin-catalog-react';
+import graphiqlPlugin from '@backstage/plugin-graphiql/alpha';
 import techdocsPlugin from '@backstage/plugin-techdocs/alpha';
+import techRadarPlugin from '@backstage/plugin-tech-radar/alpha';
+import scmIntegrationsPlugin from '@backstage/integration-react/alpha';
+import userSettingsPlugin from '@backstage/plugin-user-settings/alpha';
+import { entityRouteRef } from '@backstage/plugin-catalog-react';
+import { pagesPlugin } from './examples/pagesPlugin';
 
 /*
 
@@ -70,6 +71,7 @@ const app = createApp({
     techRadarPlugin,
     techdocsPlugin,
     userSettingsPlugin,
+    scmIntegrationsPlugin,
     createExtensionOverrides({
       extensions: [entityPageExtension],
     }),
