@@ -25817,6 +25817,7 @@ __metadata:
     "@backstage/plugin-sonarqube-backend": "workspace:^"
     "@backstage/plugin-techdocs-backend": "workspace:^"
     "@backstage/plugin-todo-backend": "workspace:^"
+    cross-env: ^7.0.0
   languageName: unknown
   linkType: soft
 
