@@ -147,6 +147,18 @@ const EntityAboutCard = createEntityCardExtension({
     )),
 });
 
+const EntityLinksCard = createEntityCardExtension({
+  id: 'links',
+  loader: async () =>
+    import('../components/EntityLinksCard').then(m => <m.EntityLinksCard />),
+});
+
+const EntityLabelsCard = createEntityCardExtension({
+  id: 'labels',
+  loader: async () =>
+    import('../components/EntityLabelsCard').then(m => <m.EntityLabelsCard />),
+});
+
 const OverviewEntityContent = createEntityContentExtension({
   id: 'overview',
   defaultPath: '/',
@@ -196,6 +208,8 @@ export default createPlugin({
     CatalogNavItem,
     OverviewEntityContent,
     EntityAboutCard,
+    EntityLabelsCard,
+    EntityLinksCard,
     ...builtInFilterExtensions,
   ],
 });
