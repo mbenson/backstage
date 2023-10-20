@@ -42,6 +42,7 @@ import {
   createEntityContentExtension,
   createEntityCardExtension,
   entityContentTitleExtensionDataRef,
+  entityFilterExtensionDataRef,
 } from '@backstage/plugin-catalog-react/alpha';
 import { createSearchResultListItemExtension } from '@backstage/plugin-search-react/alpha';
 import { DefaultStarredEntitiesApi } from '../apis';
@@ -53,7 +54,6 @@ import {
 } from '../routes';
 import { builtInFilterExtensions } from './builtInFilterExtensions';
 import { useEntityFromUrl } from '../components/CatalogEntityPage/useEntityFromUrl';
-import Grid from '@material-ui/core/Grid';
 
 /** @alpha */
 export const CatalogApi = createApiExtension({
@@ -169,17 +169,13 @@ const OverviewEntityContent = createEntityContentExtension({
   inputs: {
     cards: createExtensionInput({
       element: coreExtensionData.reactElement,
+      filter: entityFilterExtensionDataRef,
     }),
   },
-  loader: async ({ inputs }) => (
-    <Grid container spacing={3} alignItems="stretch">
-      {inputs.cards.map(card => (
-        <Grid item md={6} xs={12}>
-          {card.element}
-        </Grid>
-      ))}
-    </Grid>
-  ),
+  loader: async ({ inputs }) =>
+    import('./EntityOverviewPage').then(m => (
+      <m.EntityOverviewPage cards={inputs.cards} />
+    )),
 });
 
 const CatalogNavItem = createNavItemExtension({
