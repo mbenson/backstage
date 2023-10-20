@@ -149,12 +149,14 @@ const EntityAboutCard = createEntityCardExtension({
 
 const EntityLinksCard = createEntityCardExtension({
   id: 'links',
+  filter: ({ entity }) => Boolean(entity.metadata.links),
   loader: async () =>
     import('../components/EntityLinksCard').then(m => <m.EntityLinksCard />),
 });
 
 const EntityLabelsCard = createEntityCardExtension({
   id: 'labels',
+  filter: ({ entity }) => Boolean(entity.metadata.labels),
   loader: async () =>
     import('../components/EntityLabelsCard').then(m => <m.EntityLabelsCard />),
 });
