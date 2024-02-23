@@ -26,12 +26,14 @@ import { PermissionIntegrationClient } from './PermissionIntegrationClient';
 
 import { createRouter } from './router';
 import { ConfigReader } from '@backstage/config';
+import { BackstageCredentials } from '@backstage/backend-plugin-api';
 
 const mockApplyConditions: jest.MockedFunction<
   InstanceType<typeof PermissionIntegrationClient>['applyConditions']
 > = jest.fn(
   async (
     _pluginId: string,
+    _credentials: BackstageCredentials,
     decisions: readonly ApplyConditionsRequestEntry[],
   ) =>
     decisions.map(decision => ({

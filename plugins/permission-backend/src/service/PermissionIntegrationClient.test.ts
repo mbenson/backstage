@@ -19,7 +19,6 @@ import { Server } from 'http';
 import express, { Router, RequestHandler } from 'express';
 import { RestContext, rest } from 'msw';
 import { setupServer, SetupServer } from 'msw/node';
-import { PluginEndpointDiscovery } from '@backstage/backend-common';
 import {
   AuthorizeResult,
   PermissionCondition,
@@ -31,6 +30,7 @@ import {
 } from '@backstage/plugin-permission-node';
 import { PermissionIntegrationClient } from './PermissionIntegrationClient';
 import { z } from 'zod';
+import { DiscoveryService } from '@backstage/backend-plugin-api';
 
 describe('PermissionIntegrationClient', () => {
   describe('applyConditions', () => {
@@ -58,7 +58,7 @@ describe('PermissionIntegrationClient', () => {
     );
 
     const mockBaseUrl = 'http://backstage:9191';
-    const discovery: PluginEndpointDiscovery = {
+    const discovery: DiscoveryService = {
       async getBaseUrl(pluginId) {
         return `${mockBaseUrl}/${pluginId}`;
       },
@@ -70,6 +70,7 @@ describe('PermissionIntegrationClient', () => {
     const client: PermissionIntegrationClient = new PermissionIntegrationClient(
       {
         discovery,
+        auth,
       },
     );
 
@@ -319,7 +320,7 @@ describe('PermissionIntegrationClient', () => {
         server = app.listen(resolve);
       });
 
-      const discovery: PluginEndpointDiscovery = {
+      const discovery: DiscoveryService = {
         async getBaseUrl(pluginId: string) {
           const listenPort = (server.address()! as AddressInfo).port;
 
@@ -332,6 +333,7 @@ describe('PermissionIntegrationClient', () => {
 
       client = new PermissionIntegrationClient({
         discovery,
+        auth,
       });
     });
 
