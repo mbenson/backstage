@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { packagePathMocks } from './paths';
+import { packagePathMocks } from '@backstage/backend-plugin-api';
 import { posix as posixPath, resolve as resolvePath } from 'path';
 
 /** @public */
