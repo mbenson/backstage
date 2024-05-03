@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { Git, getVoidLogger } from '@backstage/backend-common';
+import { getVoidLogger } from '@backstage/backend-common';
+import { Git } from '../scm';
 import {
   commitAndPushRepo,
   initRepoAndPush,
