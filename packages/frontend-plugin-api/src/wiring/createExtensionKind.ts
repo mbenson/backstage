@@ -5,6 +5,7 @@ import {
   AnyExtensionDataMap,
   AnyExtensionInputMap,
   ExtensionDataValues,
+  ExtensionDefinition,
   ResolvedExtensionInputs,
   createExtension,
 } from './createExtension';
@@ -106,7 +107,7 @@ export class ExtensionKind<
       },
       props: TProps,
     ): Expand<ExtensionDataValues<TOutput>>;
-  }) {
+  }): ExtensionDefinition<TConfig, TInputs> {
     return createExtension({
       kind: this.options.kind,
       namespace: options.namespace ?? this.options.namespace,
