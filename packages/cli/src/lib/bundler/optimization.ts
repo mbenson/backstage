@@ -25,6 +25,9 @@ export const optimization = (
   const { isDev } = options;
 
   return {
+    ...(process.env.EXPERIMENTAL_FORCE_REACT_DEVELOPMENT === 'true'
+      ? { nodeEnv: false }
+      : {}),
     minimize: !isDev,
     minimizer: [
       new EsbuildPlugin({

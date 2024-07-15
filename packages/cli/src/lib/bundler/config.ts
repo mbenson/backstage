@@ -15,8 +15,8 @@
  */
 
 import { BackendBundlingOptions, BundlingOptions } from './types';
-import { posix as posixPath, resolve as resolvePath } from 'path';
-import webpack, { ProvidePlugin } from 'webpack';
+import { posix as posixPath, resolve as resolvePath, dirname } from 'path';
+import webpack, { DefinePlugin, ProvidePlugin } from 'webpack';
 
 import { BackstagePackage } from '@backstage/cli-node';
 import { BundlingPaths } from './paths';
@@ -51,6 +51,21 @@ export function resolveBaseUrl(config: Config): URL {
   } catch (error) {
     throw new Error(`Invalid app.baseUrl, ${error}`);
   }
+}
+
+export function resolveEndpoint(config: Config): {
+  host: string;
+  port: number;
+} {
+  const url = resolveBaseUrl(config);
+
+  return {
+    host: config.getOptionalString('app.listen.host') ?? url.hostname,
+    port:
+      config.getOptionalNumber('app.listen.port') ??
+      Number(url.port) ??
+      (url.protocol === 'https:' ? 443 : 80),
+  };
 }
 
 async function readBuildInfo() {
@@ -128,6 +143,25 @@ export async function createConfig(
       Buffer: ['buffer', 'Buffer'],
     }),
   );
+
+  if (process.env.EXPERIMENTAL_FORCE_REACT_DEVELOPMENT === 'true') {
+    const reactPackageDirs = [
+      `${dirname(require.resolve('react/package.json'))}/`,
+      `${dirname(require.resolve('react-dom/package.json'))}/`,
+    ];
+
+    plugins.push(
+      new DefinePlugin({
+        'process.env.NODE_ENV': DefinePlugin.runtimeValue(({ module }) => {
+          if (reactPackageDirs.some(val => module.resource.startsWith(val))) {
+            return '"development"';
+          }
+
+          return isDev ? '"development"' : '"production"';
+        }),
+      }),
+    );
+  }
 
   if (options.moduleFederation?.mode !== 'remote') {
     plugins.push(

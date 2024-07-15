@@ -29,7 +29,7 @@ interface BuildAppOptions {
   isModuleFederationRemote?: true;
 }
 
-function getModuleFederationOptions(
+export function getModuleFederationOptions(
   name: string,
   isRemote?: boolean,
 ): BuildOptions['moduleFederation'] {

@@ -15,6 +15,7 @@
  */
 
 import { serveBundle } from '../../lib/bundler';
+import { ModuleFederationOptions } from '../../lib/bundler/types';
 
 interface StartAppOptions {
   verifyVersions?: boolean;
@@ -22,6 +23,8 @@ interface StartAppOptions {
 
   checksEnabled: boolean;
   configPaths: string[];
+  skipOpenBrowser?: boolean;
+  moduleFederation?: ModuleFederationOptions;
 }
 
 export async function startFrontend(options: StartAppOptions) {
@@ -30,6 +33,8 @@ export async function startFrontend(options: StartAppOptions) {
     checksEnabled: options.checksEnabled,
     configPaths: options.configPaths,
     verifyVersions: options.verifyVersions,
+    skipOpenBrowser: options.skipOpenBrowser,
+    moduleFederation: options.moduleFederation,
   });
 
   await waitForExit();

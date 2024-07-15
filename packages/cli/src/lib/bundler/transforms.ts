@@ -16,18 +16,26 @@
 
 import { ModuleOptions, WebpackPluginInstance } from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import { Config } from '@backstage/config';
 import { svgrTemplate } from '../svgrTemplate';
 import ReactRefreshPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import { resolveEndpoint } from './config';
 
 type Transforms = {
   loaders: ModuleOptions['rules'];
   plugins: WebpackPluginInstance[];
 };
 
-type TransformOptions = {
-  isDev: boolean;
-  isBackend?: boolean;
-};
+type TransformOptions =
+  | {
+      isDev: boolean;
+      isBackend: true;
+    }
+  | {
+      isDev: boolean;
+      isBackend?: false;
+      frontendConfig: Config;
+    };
 
 export const transforms = (options: TransformOptions): Transforms => {
   const { isDev, isBackend } = options;
@@ -195,9 +203,15 @@ export const transforms = (options: TransformOptions): Transforms => {
 
   if (isDev) {
     if (!isBackend) {
+      const { host, port } = resolveEndpoint(options.frontendConfig);
+
       plugins.push(
         new ReactRefreshPlugin({
-          overlay: { sockProtocol: 'ws' },
+          overlay: {
+            sockProtocol: 'ws',
+            sockHost: host,
+            sockPort: port,
+          },
         }),
       );
     }

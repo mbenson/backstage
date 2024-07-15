@@ -15,12 +15,17 @@
  */
 
 import { OptionValues } from 'commander';
+import { readJson } from 'fs-extra';
+import { PackageRole } from '@backstage/cli-node';
+import { paths } from '../../lib/paths';
 import { findRoleFromCommand } from '../../lib/role';
 import { startBackend, startBackendPlugin } from './startBackend';
 import { startFrontend } from './startFrontend';
+import { getModuleFederationOptions } from '../build/buildFrontend';
 
 export async function command(opts: OptionValues): Promise<void> {
   const role = await findRoleFromCommand(opts);
+  const { name } = await readJson(paths.resolveTarget('package.json'));
 
   const options = {
     configPaths: opts.config as string[],
@@ -42,11 +47,19 @@ export async function command(opts: OptionValues): Promise<void> {
         ...options,
         entry: 'src/index',
         verifyVersions: true,
+        moduleFederation: getModuleFederationOptions(name, true),
       });
     case 'web-library':
     case 'frontend-plugin':
     case 'frontend-plugin-module':
       return startFrontend({ entry: 'dev/index', ...options });
+    case 'frontend-dynamic-container' as PackageRole: // experimental
+      return startFrontend({
+        entry: 'src/index',
+        ...options,
+        skipOpenBrowser: true,
+        moduleFederation: getModuleFederationOptions(name, true),
+      });
     default:
       throw new Error(
         `Start command is not supported for package role '${role}'`,
