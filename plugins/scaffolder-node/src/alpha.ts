@@ -15,13 +15,13 @@
  */
 
 import { createExtensionPoint } from '@backstage/backend-plugin-api';
-import { TemplateAction, TaskBroker } from '@backstage/plugin-scaffolder-node';
 import {
+  TemplateAction,
+  TaskBroker,
+  CreatedTemplateFilter,
   TemplateFilter,
-  TemplateFilterMetadata,
-  TemplateGlobal,
-  TemplateGlobalElement,
-} from './types';
+} from '@backstage/plugin-scaffolder-node';
+import { TemplateGlobal, TemplateGlobalElement } from './types';
 
 export * from './tasks/alpha';
 export * from './types';
@@ -71,10 +71,7 @@ export const scaffolderTaskBrokerExtensionPoint =
  */
 export interface ScaffolderTemplatingExtensionPoint {
   addTemplateFilters(
-    filters: Record<
-      string,
-      TemplateFilter | (TemplateFilterMetadata & { impl: TemplateFilter })
-    >,
+    filters: Record<string, TemplateFilter> | CreatedTemplateFilter[],
   ): void;
 
   addTemplateGlobals(

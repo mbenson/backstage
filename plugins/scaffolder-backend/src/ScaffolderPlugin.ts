@@ -22,10 +22,10 @@ import { loggerToWinstonLogger } from '@backstage/backend-common';
 import { ScmIntegrations } from '@backstage/integration';
 import { catalogServiceRef } from '@backstage/plugin-catalog-node/alpha';
 import {
+  CreatedTemplateFilter,
   TaskBroker,
   TemplateAction,
   TemplateFilter,
-  TemplateFilterMetadata,
   TemplateGlobal,
   TemplateGlobalElement,
 } from '@backstage/plugin-scaffolder-node';
@@ -78,10 +78,11 @@ export const scaffolderPlugin = createBackendPlugin({
       },
     });
 
-    const additionalTemplateFilters: Record<
-      string,
-      TemplateFilter | (TemplateFilterMetadata & { impl: TemplateFilter })
-    > = {};
+    let additionalTemplateFilters:
+      | Record<string, TemplateFilter>
+      | CreatedTemplateFilter[]
+      | undefined;
+
     let additionalTemplateGlobals:
       | Record<string, TemplateGlobal>
       | TemplateGlobalElement[]
@@ -89,7 +90,11 @@ export const scaffolderPlugin = createBackendPlugin({
 
     env.registerExtensionPoint(scaffolderTemplatingExtensionPoint, {
       addTemplateFilters(newFilters) {
-        Object.assign(additionalTemplateFilters, newFilters);
+        if (Array.isArray(newFilters)) {
+          additionalTemplateFilters = [...newFilters];
+        } else {
+          additionalTemplateFilters = Object.assign({}, newFilters);
+        }
       },
       addTemplateGlobals(newGlobals) {
         if (Array.isArray(newGlobals)) {
