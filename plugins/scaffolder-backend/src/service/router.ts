@@ -60,15 +60,15 @@ import { omit } from 'lodash';
 import { Logger } from 'winston';
 import { z } from 'zod';
 import {
+  CreatedTemplateFilter,
   TaskBroker,
   TaskStatus,
   TemplateAction,
   TemplateFilter,
-  TemplateFilterMetadata,
   TemplateGlobal,
   TemplateGlobalElement,
 } from '@backstage/plugin-scaffolder-node';
-import { createDefaultDocumentedFilters } from '../lib/templating/filters';
+import { createBuiltInTemplateFilters } from '../lib/templating/filters';
 import {
   createBuiltinActions,
   DatabaseTaskStore,
@@ -173,10 +173,9 @@ export interface RouterOptions {
    */
   concurrentTasksLimit?: number;
   taskBroker?: TaskBroker;
-  additionalTemplateFilters?: Record<
-    string,
-    TemplateFilter | (TemplateFilterMetadata & { impl: TemplateFilter })
-  >;
+  additionalTemplateFilters?:
+    | Record<string, TemplateFilter>
+    | CreatedTemplateFilter[];
   additionalTemplateGlobals?:
     | Record<string, TemplateGlobal>
     | TemplateGlobalElement[];
@@ -851,10 +850,12 @@ export async function createRouter(
       res.status(200).json({ results });
     })
     .get('/v2/template-filters/built-in', async (_req, res) => {
-      let builtIn = createDefaultDocumentedFilters({ integrations });
-      if (Object.keys(additionalTemplateFilters ?? {}).length) {
-        builtIn = omit(builtIn, Object.keys(additionalTemplateFilters!));
-      }
+      // omit from built in filters any overridden id:
+      const addl = templateFilterImpls(additionalTemplateFilters);
+      const builtIn = createBuiltInTemplateFilters({ integrations }).filter(
+        f => !(f.id in addl),
+      );
+
       if (Object.keys(builtIn).length) {
         res.status(200).json(templateFilterMetadata(builtIn));
       } else {
@@ -862,8 +863,9 @@ export async function createRouter(
       }
     })
     .get('/v2/template-filters/additional', async (_req, res) => {
-      if (Object.keys(additionalTemplateFilters ?? {}).length) {
-        res.status(200).json(templateFilterMetadata(additionalTemplateFilters));
+      const addl = templateFilterMetadata(additionalTemplateFilters);
+      if (Object.keys(addl).length) {
+        res.status(200).json(addl);
       } else {
         res.status(204).end();
       }
