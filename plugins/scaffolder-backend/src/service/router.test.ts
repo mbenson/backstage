@@ -39,9 +39,8 @@ import {
 } from '@backstage/catalog-model';
 import { createRouter, DatabaseTaskStore } from '../index';
 import {
+  CreatedTemplateFilter,
   TaskBroker,
-  TemplateFilter,
-  TemplateFilterMetadata,
   TemplateGlobal,
   TemplateGlobalElement,
 } from '@backstage/plugin-scaffolder-node';
@@ -63,7 +62,9 @@ import {
   templateGlobalFunctionMetadata,
   templateGlobalValueMetadata,
 } from '../util/templating';
-import { createDefaultDocumentedFilters } from '../lib/templating/filters';
+import { createTemplateFilter } from '@backstage/plugin-scaffolder-node';
+import { createBuiltInTemplateFilters } from '../lib/templating/filters';
+import { z } from 'zod';
 
 const mockAccess = jest.fn();
 
@@ -106,8 +107,9 @@ describe.each([
   },
   {
     desc: 'documented and undocumented template filters',
-    additionalTemplateFilters: {
-      foo: {
+    additionalTemplateFilters: [
+      createTemplateFilter({
+        id: 'foo',
         schema: {
           input: {
             type: 'any',
@@ -119,9 +121,13 @@ describe.each([
           },
         },
         impl: (s: any) => s,
-      },
-      bar: (bar: any) => !!bar,
-      baz: {
+      }),
+      createTemplateFilter({
+        id: 'bar',
+        impl: (bar: any) => !!bar,
+      }),
+      createTemplateFilter({
+        id: 'baz',
         description: 'append the argument to the incoming value',
         schema: {
           input: {
@@ -140,8 +146,9 @@ describe.each([
           },
         },
         impl: (what: string, ever: string) => what + ever,
-      },
-      blah: {
+      }),
+      createTemplateFilter({
+        id: 'blah',
         schema: {
           input: {
             type: 'number',
@@ -159,11 +166,42 @@ describe.each([
         },
         impl: (base: number, factor: number, addend: number) =>
           base * factor + addend,
-      },
-    } as Record<
-      string,
-      TemplateFilter | (TemplateFilterMetadata & { impl: TemplateFilter })
-    >,
+      }),
+      createTemplateFilter({
+        id: 'zfoo',
+        schema: {
+          input: z.any().describe('a value'),
+          output: z.any().describe('same value'),
+        },
+        impl: (s: any) => s,
+      }),
+      createTemplateFilter({
+        id: 'zbar',
+        impl: (bar: any) => !!bar,
+      }),
+      createTemplateFilter({
+        id: 'zbaz',
+        description: 'append the argument to the incoming value',
+        schema: {
+          input: z.string(),
+          arguments: [z.string().describe('value to append to input')],
+          output: z.string().describe('input+suffix'),
+        },
+        impl: (what: string, ever: string) => what + ever,
+      }),
+      createTemplateFilter({
+        id: 'zblah',
+        schema: {
+          input: z.number(),
+          arguments: [
+            z.number().describe('factor by which to multiply input'),
+            z.number().describe('addend by which to increase input * factor'),
+          ],
+        },
+        impl: (base: number, factor: number, addend: number) =>
+          base * factor + addend,
+      }),
+    ] as CreatedTemplateFilter[],
   },
   {
     desc: 'undocumented template globals',
@@ -371,7 +409,7 @@ describe.each([
       });
 
       describe('GET /v2/template-filters/*', () => {
-        it('list built-in template filters', async () => {
+        it('lists built-in template filters', async () => {
           const response = await request(app)
             .get('/v2/template-filters/built-in')
             .send();
@@ -379,11 +417,11 @@ describe.each([
           const integrations = ScmIntegrations.fromConfig(config);
           expect(response.body).toMatchObject(
             templateFilterMetadata(
-              createDefaultDocumentedFilters({ integrations }),
+              createBuiltInTemplateFilters({ integrations }),
             ),
           );
         });
-        it('list additional template filters', async () => {
+        it('lists additional template filters', async () => {
           const response = await request(app)
             .get('/v2/template-filters/additional')
             .send();
