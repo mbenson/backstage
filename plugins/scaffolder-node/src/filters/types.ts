@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Backstage Authors
+ * Copyright 2024 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { JsonValue } from '@backstage/types';
 import { Schema } from 'jsonschema';
 
 /** @public */
-export type TemplateGlobal =
-  | ((...args: JsonValue[]) => JsonValue | undefined)
-  | JsonValue;
+export type TemplateFilter = (...args: JsonValue[]) => JsonValue | undefined;
 
 /** @public */
-export type TemplateGlobalValueMetadata = {
-  description?: string;
-  value: JsonValue;
-};
-
-/** @public */
-export type TemplateGlobalFunctionSchema = {
+export type TemplateFilterSchema = {
+  input?: Schema;
   arguments?: Schema[];
   output?: Schema;
 };
 
 /** @public */
-export type TemplateGlobalFunctionMetadata = {
+export type TemplateFilterExample = {
   description?: string;
-  schema?: TemplateGlobalFunctionSchema;
-  examples?: { description?: string; example: string; notes?: string }[];
+  example: string;
+  notes?: string;
 };
 
 /** @public */
-export type TemplateGlobalElement = { name: string } & (
-  | TemplateGlobalValueMetadata
-  | (TemplateGlobalFunctionMetadata & {
-      fn: Exclude<TemplateGlobal, JsonValue>;
-    })
-);
+export type TemplateFilterMetadata = {
+  description?: string;
+  schema?: TemplateFilterSchema;
+  examples?: TemplateFilterExample[];
+};
+
+/** @public */
+export type CreatedTemplateFilter<
+  TFilterInput extends JsonValue = JsonValue,
+  TFilterArguments extends JsonValue[] = JsonValue[],
+  TFilterOutput extends JsonValue | undefined = JsonValue,
+> = {
+  id: string;
+  impl: (...args: [TFilterInput, ...TFilterArguments]) => TFilterOutput;
+} & TemplateFilterMetadata;

@@ -15,9 +15,9 @@
  */
 import {
   TemplateFilter,
-  TemplateFilterMetadata,
   TemplateGlobalElement,
 } from '@backstage/plugin-scaffolder-node';
+import { createTemplateFilter } from '@backstage/plugin-scaffolder-node';
 import {
   templateFilterImpls,
   templateFilterMetadata,
@@ -27,31 +27,55 @@ import {
 } from './templating';
 
 describe('templating utilities', () => {
-  const filters: Record<
-    string,
-    TemplateFilter | (TemplateFilterMetadata & { impl: TemplateFilter })
-  > = {
-    nop: {
-      description: 'nop',
-      impl: x => x,
-    },
-    nul: _ => null,
-  };
-  it('extracts filter implementations', () => {
-    const impls = templateFilterImpls(filters);
-    expect(impls).toHaveProperty('nop');
-    expect(impls.nop(42)).toBe(42);
-    expect(impls).toHaveProperty('nul');
-    expect(impls.nul('anything')).toBeNull();
+  describe('api filters', () => {
+    const filters = [
+      createTemplateFilter({
+        id: 'nop',
+        description: 'nop',
+        impl: x => x,
+      }),
+      createTemplateFilter({
+        id: 'nul',
+        impl: _ => null,
+      }),
+    ];
+    it('extracts filter implementations', () => {
+      const impls = templateFilterImpls(filters);
+      expect(impls).toHaveProperty('nop');
+      expect(impls.nop(42)).toBe(42);
+      expect(impls).toHaveProperty('nul');
+      expect(impls.nul('anything')).toBeNull();
+    });
+    it('extracts filter metadata', () => {
+      const metadata = templateFilterMetadata(filters);
+      expect(metadata).toHaveProperty('nop');
+      expect(metadata.nop).toHaveProperty('description');
+      expect(metadata.nop.description).toBe('nop');
+      expect(metadata).toHaveProperty('nul');
+      expect(Object.keys(metadata.nul)).toHaveLength(0);
+    });
   });
-  it('extracts filter metadata', () => {
-    const metadata = templateFilterMetadata(filters);
-    expect(metadata).toHaveProperty('nop');
-    expect(metadata.nop).toHaveProperty('description');
-    expect(metadata.nop.description).toBe('nop');
-    expect(metadata).toHaveProperty('nul');
-    expect(Object.keys(metadata.nul)).toHaveLength(0);
+  describe('legacy filters', () => {
+    const filters = {
+      nop: x => x,
+      nul: _ => null,
+    } as Record<string, TemplateFilter>;
+    it('extracts filter implementations', () => {
+      const impls = templateFilterImpls(filters);
+      expect(impls).toHaveProperty('nop');
+      expect(impls.nop(42)).toBe(42);
+      expect(impls).toHaveProperty('nul');
+      expect(impls.nul('anything')).toBeNull();
+    });
+    it('extracts filter metadata', () => {
+      const metadata = templateFilterMetadata(filters);
+      expect(metadata).toHaveProperty('nop');
+      expect(Object.keys(metadata.nop)).toHaveLength(0);
+      expect(metadata).toHaveProperty('nul');
+      expect(Object.keys(metadata.nul)).toHaveLength(0);
+    });
   });
+
   const documentedGlobals: TemplateGlobalElement[] = [
     {
       name: 'foo',

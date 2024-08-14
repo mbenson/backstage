@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import {
+  CreatedTemplateFilter,
   TemplateFilter,
   TemplateFilterMetadata,
   TemplateGlobal,
@@ -22,31 +23,39 @@ import {
   TemplateGlobalValueMetadata,
 } from '@backstage/plugin-scaffolder-node';
 import { JsonValue } from '@backstage/types';
-import { filter, fromPairs, mapValues, negate, pick, toPairs } from 'lodash';
-
-function isTemplateFilterMetadata(
-  f: TemplateFilter | TemplateFilterMetadata,
-): f is TemplateFilterMetadata {
-  return ['description', 'schema'].some(k => Object.hasOwn(f, k));
-}
+import {
+  filter,
+  fromPairs,
+  keyBy,
+  mapValues,
+  negate,
+  omit,
+  pick,
+  toPairs,
+} from 'lodash';
 
 export function templateFilterImpls(
-  filters?: Record<
-    string,
-    TemplateFilter | (TemplateFilterMetadata & { impl: TemplateFilter })
-  >,
+  filters?: Record<string, TemplateFilter> | CreatedTemplateFilter[],
 ): Record<string, TemplateFilter> {
-  return mapValues(filters, f => (isTemplateFilterMetadata(f) ? f.impl : f));
+  if (!filters) {
+    return {};
+  }
+  if (Array.isArray(filters)) {
+    return mapValues(keyBy(filters, 'id'), f => f.impl as TemplateFilter);
+  }
+  return filters;
 }
 
 export function templateFilterMetadata(
-  filters?: Record<string, TemplateFilter | TemplateFilterMetadata>,
+  filters?: Record<string, TemplateFilter> | CreatedTemplateFilter[],
 ): Record<string, Partial<TemplateFilterMetadata>> {
-  return mapValues(filters, f =>
-    isTemplateFilterMetadata(f)
-      ? pick(f, 'description', 'schema', 'examples')
-      : {},
-  );
+  if (!filters) {
+    return {};
+  }
+  if (Array.isArray(filters)) {
+    return mapValues(keyBy(filters, 'id'), f => omit(f, 'id', 'impl'));
+  }
+  return mapValues(filters, _ => ({}));
 }
 
 type GlobalFunctionInfo = Exclude<TemplateGlobalElement, { value: JsonValue }>;
