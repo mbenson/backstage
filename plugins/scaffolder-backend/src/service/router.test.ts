@@ -38,10 +38,13 @@ import {
 } from '@backstage/catalog-model';
 import { createRouter, DatabaseTaskStore } from '../index';
 import {
+  createTemplateGlobalFunction,
+  createTemplateGlobalValue,
   CreatedTemplateFilter,
+  CreatedTemplateGlobal,
   TaskBroker,
+  TemplateFilter,
   TemplateGlobal,
-  TemplateGlobalElement,
 } from '@backstage/plugin-scaffolder-node';
 import { StorageTaskBroker } from '../scaffolder/tasks/StorageTaskBroker';
 import {
@@ -106,7 +109,15 @@ describe.each([
     desc: 'no template filters/globals',
   },
   {
-    desc: 'documented and undocumented template filters',
+    desc: 'legacy template filters',
+    additionalTemplateFilters: {
+      foo: (s: any) => s,
+      bar: (bar: any) => !!bar,
+      baz: (what: string, ever: string) => what + ever,
+    } as Record<string, TemplateFilter>,
+  },
+  {
+    desc: 'created template filters',
     additionalTemplateFilters: [
       createTemplateFilter({
         id: 'foo',
@@ -204,30 +215,39 @@ describe.each([
     ] as CreatedTemplateFilter[],
   },
   {
-    desc: 'undocumented template globals',
+    desc: 'legacy template globals',
     additionalTemplateGlobals: {
       nul: null,
       nop: x => x,
     } as Record<string, TemplateGlobal>,
   },
   {
-    desc: 'documented template globals',
+    desc: 'created template globals',
     additionalTemplateGlobals: [
-      {
-        name: 'nul',
+      createTemplateGlobalValue({
+        id: 'nul',
         description: 'null value',
         value: null,
-      },
-      {
-        name: 'nop',
+      }),
+      createTemplateGlobalFunction({
+        id: 'nop',
         description: 'nop function',
         schema: {
           arguments: [{ title: 'input' }],
           output: { title: 'output' },
         },
-        fn: x => x,
-      },
-    ] as TemplateGlobalElement[],
+        fn: (x: any) => x,
+      }),
+      createTemplateGlobalFunction({
+        id: 'znop',
+        description: 'nop function',
+        schema: {
+          arguments: [z.any().describe('input')],
+          output: z.any().describe('output'),
+        },
+        fn: (x: any) => x,
+      }),
+    ] as CreatedTemplateGlobal<any>[],
   },
 ])(
   'createRouter, $desc',
@@ -427,7 +447,7 @@ describe.each([
         });
       });
       describe('GET /v2/template-global/*', () => {
-        it('list template global functions', async () => {
+        it('lists template global functions', async () => {
           const response = await request(app)
             .get('/v2/template-global/functions')
             .send();
@@ -435,7 +455,7 @@ describe.each([
           expect(response.status).toEqual(Object.keys(m).length ? 200 : 204);
           expect(response.body).toMatchObject(m);
         });
-        it('list template global values', async () => {
+        it('lists template global values', async () => {
           const response = await request(app)
             .get('/v2/template-global/values')
             .send();

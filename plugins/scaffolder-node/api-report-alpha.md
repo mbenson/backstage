@@ -5,11 +5,13 @@
 ```ts
 /// <reference types="node" />
 
+import { CreatedTemplateFilter } from '@backstage/plugin-scaffolder-node';
+import { CreatedTemplateGlobal } from '@backstage/plugin-scaffolder-node';
 import { ExtensionPoint } from '@backstage/backend-plugin-api';
-import { JsonValue } from '@backstage/types';
-import { Schema } from 'jsonschema';
 import { TaskBroker } from '@backstage/plugin-scaffolder-node';
 import { TemplateAction } from '@backstage/plugin-scaffolder-node';
+import { TemplateFilter } from '@backstage/plugin-scaffolder-node';
+import { TemplateGlobal } from '@backstage/plugin-scaffolder-node';
 
 // @alpha
 export type AutocompleteHandler = ({
@@ -69,17 +71,11 @@ export const scaffolderTaskBrokerExtensionPoint: ExtensionPoint<ScaffolderTaskBr
 export interface ScaffolderTemplatingExtensionPoint {
   // (undocumented)
   addTemplateFilters(
-    filters: Record<
-      string,
-      | TemplateFilter
-      | (TemplateFilterMetadata & {
-          impl: TemplateFilter;
-        })
-    >,
+    filters: Record<string, TemplateFilter> | CreatedTemplateFilter[],
   ): void;
   // (undocumented)
   addTemplateGlobals(
-    globals: Record<string, TemplateGlobal> | TemplateGlobalElement[],
+    globals: Record<string, TemplateGlobal> | CreatedTemplateGlobal<any>[],
   ): void;
 }
 
@@ -99,65 +95,6 @@ export const scaffolderWorkspaceProviderExtensionPoint: ExtensionPoint<Scaffolde
 export const serializeWorkspace: (opts: { path: string }) => Promise<{
   contents: Buffer;
 }>;
-
-// @public (undocumented)
-export type TemplateFilter = (...args: JsonValue[]) => JsonValue | undefined;
-
-// @public (undocumented)
-export type TemplateFilterMetadata = {
-  description?: string;
-  schema?: TemplateFilterSchema;
-  examples?: {
-    description?: string;
-    example: string;
-    notes?: string;
-  }[];
-};
-
-// @public (undocumented)
-export type TemplateFilterSchema = {
-  input?: Schema;
-  arguments?: Schema[];
-  output?: Schema;
-};
-
-// @public (undocumented)
-export type TemplateGlobal =
-  | ((...args: JsonValue[]) => JsonValue | undefined)
-  | JsonValue;
-
-// @public (undocumented)
-export type TemplateGlobalElement = {
-  name: string;
-} & (
-  | TemplateGlobalValueMetadata
-  | (TemplateGlobalFunctionMetadata & {
-      fn: Exclude<TemplateGlobal, JsonValue>;
-    })
-);
-
-// @public (undocumented)
-export type TemplateGlobalFunctionMetadata = {
-  description?: string;
-  schema?: TemplateGlobalFunctionSchema;
-  examples?: {
-    description?: string;
-    example: string;
-    notes?: string;
-  }[];
-};
-
-// @public (undocumented)
-export type TemplateGlobalFunctionSchema = {
-  arguments?: Schema[];
-  output?: Schema;
-};
-
-// @public (undocumented)
-export type TemplateGlobalValueMetadata = {
-  description?: string;
-  value: JsonValue;
-};
 
 // @alpha
 export interface WorkspaceProvider {

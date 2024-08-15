@@ -15,12 +15,13 @@
  */
 import {
   CreatedTemplateFilter,
+  CreatedTemplateGlobal,
   TemplateFilter,
   TemplateFilterMetadata,
   TemplateGlobal,
-  TemplateGlobalElement,
+  TemplateGlobalFunction,
   TemplateGlobalFunctionMetadata,
-  TemplateGlobalValueMetadata,
+  TemplateGlobalValue,
 } from '@backstage/plugin-scaffolder-node';
 import { JsonValue } from '@backstage/types';
 import {
@@ -58,18 +59,16 @@ export function templateFilterMetadata(
   return mapValues(filters, _ => ({}));
 }
 
-type GlobalFunctionInfo = Exclude<TemplateGlobalElement, { value: JsonValue }>;
-
 function isGlobalFunctionInfo(
-  global: TemplateGlobalElement,
-): global is GlobalFunctionInfo {
+  global: CreatedTemplateGlobal<any>,
+): global is CreatedTemplateGlobal<TemplateGlobalFunction> {
   return Object.hasOwn(global, 'fn');
 }
 
 type GlobalRecordRow = [string, TemplateGlobal];
 
 export function templateGlobalFunctionMetadata(
-  globals?: Record<string, TemplateGlobal> | TemplateGlobalElement[],
+  globals?: Record<string, TemplateGlobal> | CreatedTemplateGlobal<any>[],
 ): Record<string, TemplateGlobalFunctionMetadata> {
   if (!globals) {
     return {};
@@ -82,17 +81,14 @@ export function templateGlobalFunctionMetadata(
     ][];
     return fromPairs(fns.map(([k, _]) => [k, {}]));
   }
-  return fromPairs(
-    filter(globals, isGlobalFunctionInfo).map(fn => [
-      fn.name,
-      pick(fn, ['description', 'schema', 'examples']),
-    ]),
+  return mapValues(keyBy(filter(globals, isGlobalFunctionInfo), 'id'), v =>
+    pick(v, 'description', 'schema', 'examples'),
   );
 }
 
 export function templateGlobalValueMetadata(
-  globals?: Record<string, TemplateGlobal> | TemplateGlobalElement[],
-): Record<string, TemplateGlobalValueMetadata> {
+  globals?: Record<string, TemplateGlobal> | CreatedTemplateGlobal<any>[],
+): Record<string, TemplateGlobalValue<any>> {
   if (!globals) {
     return {};
   }
@@ -104,14 +100,20 @@ export function templateGlobalValueMetadata(
     ][];
     return fromPairs(vals.map(([k, value]) => [k, { value }]));
   }
-  const vals = filter(globals, negate(isGlobalFunctionInfo)) as ({
-    name: string;
-  } & TemplateGlobalValueMetadata)[];
-  return fromPairs(vals.map(v => [v.name, pick(v, ['description', 'value'])]));
+  return mapValues(
+    keyBy(
+      filter(
+        globals,
+        negate(isGlobalFunctionInfo),
+      ) as CreatedTemplateGlobal<JsonValue>[],
+      'id',
+    ),
+    v => pick(v, 'value', 'description') as TemplateGlobalValue,
+  );
 }
 
 export function templateGlobals(
-  globals?: Record<string, TemplateGlobal> | TemplateGlobalElement[],
+  globals?: Record<string, TemplateGlobal> | CreatedTemplateGlobal<any>[],
 ): Record<string, TemplateGlobal> {
   if (!globals) {
     return {};
@@ -119,10 +121,7 @@ export function templateGlobals(
   if (!Array.isArray(globals)) {
     return globals;
   }
-  return fromPairs(
-    globals.map(info => [
-      info.name,
-      isGlobalFunctionInfo(info) ? info.fn : info.value,
-    ]),
+  return mapValues(keyBy(globals, 'id'), v =>
+    isGlobalFunctionInfo(v) ? v.fn : (v as TemplateGlobalValue).value,
   );
 }
