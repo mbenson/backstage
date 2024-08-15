@@ -48,16 +48,8 @@ export const PageBlueprint = createExtensionBlueprint({
     },
     { config, node },
   ) {
-    const ExtensionComponent = lazy(() =>
-      loader().then(element => ({ default: () => element })),
-    );
-
     yield coreExtensionData.routePath(config.path ?? defaultPath);
-    yield coreExtensionData.reactElement(
-      <ExtensionBoundary node={node}>
-        <ExtensionComponent />
-      </ExtensionBoundary>,
-    );
+    yield coreExtensionData.reactElement(ExtensionBoundary.lazy(node, loader));
 
     if (routeRef) {
       yield coreExtensionData.routeRef(routeRef);
