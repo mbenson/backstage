@@ -5,4 +5,5 @@
 '@backstage/plugin-scaffolder': minor
 ---
 
-In-portal documentation of template filters and globals
+New APIs createTemplateFilter, createTemplateGlobalFunction, createTemplateGlobalValue;
+in-portal documentation of template filters and globals

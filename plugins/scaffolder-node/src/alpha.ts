@@ -20,11 +20,11 @@ import {
   TaskBroker,
   CreatedTemplateFilter,
   TemplateFilter,
+  TemplateGlobal,
+  CreatedTemplateGlobal,
 } from '@backstage/plugin-scaffolder-node';
-import { TemplateGlobal, TemplateGlobalElement } from './types';
 
 export * from './tasks/alpha';
-export * from './types';
 
 /**
  * Extension point for managing scaffolder actions.
@@ -75,7 +75,7 @@ export interface ScaffolderTemplatingExtensionPoint {
   ): void;
 
   addTemplateGlobals(
-    globals: Record<string, TemplateGlobal> | TemplateGlobalElement[],
+    globals: Record<string, TemplateGlobal> | CreatedTemplateGlobal<any>[],
   ): void;
 }
 
