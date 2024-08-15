@@ -58,17 +58,16 @@ import { HumanDuration, JsonObject, JsonValue } from '@backstage/types';
 import express from 'express';
 import Router from 'express-promise-router';
 import { validate } from 'jsonschema';
-import { omit } from 'lodash';
 import { Logger } from 'winston';
 import { z } from 'zod';
 import {
   CreatedTemplateFilter,
+  CreatedTemplateGlobal,
   TaskBroker,
   TaskStatus,
   TemplateAction,
   TemplateFilter,
   TemplateGlobal,
-  TemplateGlobalElement,
 } from '@backstage/plugin-scaffolder-node';
 import { createBuiltInTemplateFilters } from '../lib/templating/filters';
 import {
@@ -177,7 +176,7 @@ export interface RouterOptions {
     | CreatedTemplateFilter[];
   additionalTemplateGlobals?:
     | Record<string, TemplateGlobal>
-    | TemplateGlobalElement[];
+    | CreatedTemplateGlobal<any>[];
   additionalWorkspaceProviders?: Record<string, WorkspaceProvider>;
   permissions?: PermissionsService;
   permissionRules?: Array<

@@ -15,6 +15,8 @@ import * as bitbucketCloud from '@backstage/plugin-scaffolder-backend-module-bit
 import * as bitbucketServer from '@backstage/plugin-scaffolder-backend-module-bitbucket-server';
 import { CatalogApi } from '@backstage/catalog-client';
 import { Config } from '@backstage/config';
+import { CreatedTemplateFilter } from '@backstage/plugin-scaffolder-node';
+import { CreatedTemplateGlobal } from '@backstage/plugin-scaffolder-node';
 import { DiscoveryService } from '@backstage/backend-plugin-api';
 import { Duration } from 'luxon';
 import { executeShellCommand as executeShellCommand_2 } from '@backstage/plugin-scaffolder-node';
@@ -61,9 +63,7 @@ import { TemplateAction as TemplateAction_2 } from '@backstage/plugin-scaffolder
 import { TemplateActionOptions } from '@backstage/plugin-scaffolder-node';
 import { TemplateEntityStepV1beta3 } from '@backstage/plugin-scaffolder-common';
 import { TemplateFilter as TemplateFilter_2 } from '@backstage/plugin-scaffolder-node';
-import { TemplateFilterMetadata } from '@backstage/plugin-scaffolder-node';
 import { TemplateGlobal as TemplateGlobal_2 } from '@backstage/plugin-scaffolder-node';
-import { TemplateGlobalElement } from '@backstage/plugin-scaffolder-node';
 import { TemplateParametersV1beta3 } from '@backstage/plugin-scaffolder-common';
 import { UrlReaderService } from '@backstage/backend-plugin-api';
 import { WorkspaceProvider } from '@backstage/plugin-scaffolder-node/alpha';
@@ -476,17 +476,13 @@ export interface RouterOptions {
   // (undocumented)
   actions?: TemplateAction_2<any, any>[];
   // (undocumented)
-  additionalTemplateFilters?: Record<
-    string,
-    | TemplateFilter_2
-    | (TemplateFilterMetadata & {
-        impl: TemplateFilter_2;
-      })
-  >;
+  additionalTemplateFilters?:
+    | Record<string, TemplateFilter_2>
+    | CreatedTemplateFilter[];
   // (undocumented)
   additionalTemplateGlobals?:
     | Record<string, TemplateGlobal_2>
-    | TemplateGlobalElement[];
+    | CreatedTemplateGlobal<any>[];
   // (undocumented)
   additionalWorkspaceProviders?: Record<string, WorkspaceProvider>;
   // (undocumented)
