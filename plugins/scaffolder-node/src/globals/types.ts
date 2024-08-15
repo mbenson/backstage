@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Backstage Authors
+ * Copyright 2024 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { JsonValue } from '@backstage/types';
 import { Schema } from 'jsonschema';
 
 /** @public */
-export type TemplateGlobal =
-  | ((...args: JsonValue[]) => JsonValue | undefined)
-  | JsonValue;
+export type TemplateGlobalFunction<
+  Args extends JsonValue[] = JsonValue[],
+  Output extends JsonValue | undefined = JsonValue,
+> = (...args: Args) => Output;
 
 /** @public */
-export type TemplateGlobalValueMetadata = {
+export type TemplateGlobal = TemplateGlobalFunction | JsonValue;
+
+/** @public */
+export type TemplateGlobalValue<T extends JsonValue = JsonValue> = {
+  value: T;
   description?: string;
-  value: JsonValue;
 };
 
 /** @public */
@@ -35,16 +38,26 @@ export type TemplateGlobalFunctionSchema = {
 };
 
 /** @public */
-export type TemplateGlobalFunctionMetadata = {
+export type TemplateGlobalFunctionExample = {
   description?: string;
-  schema?: TemplateGlobalFunctionSchema;
-  examples?: { description?: string; example: string; notes?: string }[];
+  example: string;
+  notes?: string;
 };
 
 /** @public */
-export type TemplateGlobalElement = { name: string } & (
-  | TemplateGlobalValueMetadata
-  | (TemplateGlobalFunctionMetadata & {
-      fn: Exclude<TemplateGlobal, JsonValue>;
-    })
-);
+export type TemplateGlobalFunctionMetadata = {
+  description?: string;
+  schema?: TemplateGlobalFunctionSchema;
+  examples?: TemplateGlobalFunctionExample[];
+};
+
+/** @public */
+export type CreatedTemplateGlobal<
+  T extends TemplateGlobalFunction | JsonValue,
+> = {
+  id: string;
+} & (T extends JsonValue
+  ? TemplateGlobalValue<T>
+  : TemplateGlobalFunctionMetadata & {
+      fn: T;
+    });

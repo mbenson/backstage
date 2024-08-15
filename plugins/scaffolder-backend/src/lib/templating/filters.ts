@@ -196,5 +196,5 @@ export const createBuiltInTemplateFilters = ({
 export const createDefaultFilters = (opts: {
   integrations: ScmIntegrations;
 }): Record<string, TemplateFilter> => {
-  return mapValues(keyBy(createBuiltInTemplateFilters(opts)), 'impl');
+  return mapValues(keyBy(createBuiltInTemplateFilters(opts), 'id'), 'impl');
 };

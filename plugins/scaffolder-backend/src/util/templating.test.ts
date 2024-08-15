@@ -15,7 +15,7 @@
  */
 import {
   TemplateFilter,
-  TemplateGlobalElement,
+  CreatedTemplateGlobal,
 } from '@backstage/plugin-scaffolder-node';
 import { createTemplateFilter } from '@backstage/plugin-scaffolder-node';
 import {
@@ -76,14 +76,14 @@ describe('templating utilities', () => {
     });
   });
 
-  const documentedGlobals: TemplateGlobalElement[] = [
+  const documentedGlobals: CreatedTemplateGlobal<any>[] = [
     {
-      name: 'foo',
+      id: 'foo',
       description: 'foo something',
-      fn: x => `${x}_FOO`,
+      fn: (x: any) => `${x}_FOO`,
     },
     {
-      name: 'bar',
+      id: 'bar',
       description: 'bar value',
       value: 'bar',
     },

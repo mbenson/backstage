@@ -19,7 +19,11 @@ import { Schema } from 'jsonschema';
 import { mapValues, pickBy } from 'lodash';
 import { z } from 'zod';
 import zodToJsonSchema from 'zod-to-json-schema';
-import { CreatedTemplateFilter, TemplateFilterExample } from './types';
+import {
+  CreatedTemplateGlobal,
+  TemplateGlobalFunction,
+  TemplateGlobalFunctionExample,
+} from './types';
 
 const jsonSchema = (schemaSpec: Schema | z.ZodType) => {
   return schemaSpec instanceof z.ZodType
@@ -28,41 +32,48 @@ const jsonSchema = (schemaSpec: Schema | z.ZodType) => {
 };
 
 /** @public */
-export type TemplateFilterOptions<
-  TInputSchema extends Schema | z.ZodType = {},
+export type TemplateGlobalValueOptions<T extends JsonValue = JsonValue> = {
+  id: string;
+  value: T;
+  description?: string;
+};
+
+/**
+ * This function is used to create new template global values in type-safe manner.
+ * Will convert zod schemas to json schemas for use throughout the system.
+ * @public
+ */
+export const createTemplateGlobalValue = <T extends JsonValue = JsonValue>(
+  value: TemplateGlobalValueOptions<T>,
+): CreatedTemplateGlobal<T> => {
+  return value as any as CreatedTemplateGlobal<T>;
+};
+
+/** @public */
+export type TemplateGlobalFunctionOptions<
   TArgumentsSchema extends (Schema | z.ZodType)[] = [],
   TOutputSchema extends Schema | z.ZodType = {},
 > = {
   id: string;
   description?: string;
-  examples?: TemplateFilterExample[];
+  examples?: TemplateGlobalFunctionExample[];
   schema?: {
-    input?: TInputSchema;
     arguments?: TArgumentsSchema;
     output?: TOutputSchema;
   };
 };
 
 /**
- * This function is used to create new template filters in type-safe manner.
+ * This function is used to create new template global functions in type-safe manner.
  * Will convert zod schemas to json schemas for use throughout the system.
  * @public
  */
-export const createTemplateFilter = <
-  TInput extends JsonValue = JsonValue,
+export const createTemplateGlobalFunction = <
   TArguments extends JsonValue[] = [],
   TOutput extends JsonValue | undefined = JsonValue,
-  TInputSchema extends Schema | z.ZodType = {},
   TArgumentsSchema extends (Schema | z.ZodType)[] = [],
   TOutputSchema extends Schema | z.ZodType = {},
-  TFilterInput extends JsonValue = TInputSchema extends z.ZodType<
-    any,
-    any,
-    infer IReturn
-  >
-    ? IReturn
-    : TInput,
-  TFilterArguments extends JsonValue[] = keyof TArgumentsSchema extends never
+  TFnArguments extends JsonValue[] = keyof TArgumentsSchema extends never
     ? TArguments
     : {
         [K in keyof TArgumentsSchema]: TArgumentsSchema[K] extends z.ZodType<
@@ -71,9 +82,9 @@ export const createTemplateFilter = <
           infer IReturn
         >
           ? IReturn
-          : JsonValue;
+          : TArguments;
       },
-  TFilterOutput extends JsonValue = TOutputSchema extends z.ZodType<
+  TFnOutput extends JsonValue = TOutputSchema extends z.ZodType<
     any,
     any,
     infer IReturn
@@ -81,17 +92,16 @@ export const createTemplateFilter = <
     ? IReturn
     : TOutput,
 >(
-  filter: TemplateFilterOptions<
-    TInputSchema,
-    TArgumentsSchema,
-    TOutputSchema
-  > & { impl: (...args: [TFilterInput, ...TFilterArguments]) => TFilterOutput },
-): CreatedTemplateFilter<TFilterInput, TFilterArguments, TFilterOutput> => {
+  gf: TemplateGlobalFunctionOptions<TArgumentsSchema, TOutputSchema> & {
+    fn: (...args: TFnArguments) => TFnOutput;
+  },
+): CreatedTemplateGlobal<TemplateGlobalFunction> => {
   return {
-    ...filter,
-    ...(filter.schema
+    ...gf,
+    fn: gf.fn as any as TemplateGlobalFunction,
+    ...(gf.schema
       ? {
-          schema: mapValues(pickBy(filter.schema), spec =>
+          schema: mapValues(pickBy(gf.schema), spec =>
             Array.isArray(spec)
               ? spec.map(e => jsonSchema(e))
               : jsonSchema(spec),

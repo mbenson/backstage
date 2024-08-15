@@ -23,11 +23,11 @@ import { ScmIntegrations } from '@backstage/integration';
 import { catalogServiceRef } from '@backstage/plugin-catalog-node/alpha';
 import {
   CreatedTemplateFilter,
+  CreatedTemplateGlobal,
   TaskBroker,
   TemplateAction,
   TemplateFilter,
   TemplateGlobal,
-  TemplateGlobalElement,
 } from '@backstage/plugin-scaffolder-node';
 import {
   AutocompleteHandler,
@@ -85,8 +85,8 @@ export const scaffolderPlugin = createBackendPlugin({
 
     let additionalTemplateGlobals:
       | Record<string, TemplateGlobal>
-      | TemplateGlobalElement[]
-      | undefined = undefined;
+      | CreatedTemplateGlobal<any>[]
+      | undefined;
 
     env.registerExtensionPoint(scaffolderTemplatingExtensionPoint, {
       addTemplateFilters(newFilters) {
