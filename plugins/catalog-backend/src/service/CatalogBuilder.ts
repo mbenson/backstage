@@ -19,7 +19,6 @@ import {
   HostDiscovery,
   PluginDatabaseManager,
 } from '@backstage/backend-common';
-import { PluginTaskScheduler } from '@backstage/backend-tasks';
 import {
   DefaultNamespaceEntityPolicy,
   Entity,
@@ -112,6 +111,7 @@ import {
   LoggerService,
   PermissionsService,
   UrlReaderService,
+  SchedulerService,
 } from '@backstage/backend-plugin-api';
 
 /**
@@ -130,7 +130,7 @@ export type CatalogEnvironment = {
   config: Config;
   reader: UrlReaderService;
   permissions: PermissionsService | PermissionAuthorizer;
-  scheduler?: PluginTaskScheduler;
+  scheduler?: SchedulerService;
   discovery?: DiscoveryService;
   auth?: AuthService;
   httpAuth?: HttpAuthService;
