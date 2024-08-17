@@ -57,10 +57,7 @@ export type Action = {
 };
 
 // @public
-export type ActionExample = {
-  description: string;
-  example: string;
-};
+export type ActionExample = Example;
 
 // @public
 export function createScaffolderFieldExtension<
@@ -92,6 +89,13 @@ export type CustomFieldValidator<TFieldReturnValue, TUiOptions = unknown> = (
     uiSchema?: FieldExtensionUiSchema<TFieldReturnValue, TUiOptions>;
   },
 ) => void | Promise<void>;
+
+// @public
+export type Example = {
+  description?: string;
+  example: string;
+  notes?: string;
+};
 
 // @public
 export type FieldExtensionComponent<_TReturnValue, _TInputProps> = () => null;
@@ -156,6 +160,21 @@ export type LayoutTemplate<T = any> = NonNullable<
 export type ListActionsResponse = Array<Action>;
 
 // @public
+export type ListTemplateFiltersResponse = Record<string, TemplateFilter>;
+
+// @public
+export type ListTemplateGlobalFunctionsResponse = Record<
+  string,
+  TemplateGlobalFunction
+>;
+
+// @public
+export type ListTemplateGlobalValuesResponse = Record<
+  string,
+  TemplateGlobalValue
+>;
+
+// @public
 export type LogEvent = {
   type: 'log' | 'completion' | 'cancelled' | 'recovered';
   body: {
@@ -209,10 +228,14 @@ export interface ScaffolderApi {
     templateRef: string,
   ): Promise<TemplateParameterSchema>;
   listActions(): Promise<ListActionsResponse>;
+  listAdditionalTemplateFilters(): Promise<ListTemplateFiltersResponse>;
+  listBuiltInTemplateFilters(): Promise<ListTemplateFiltersResponse>;
   // (undocumented)
   listTasks?(options: { filterByOwnership: 'owned' | 'all' }): Promise<{
     tasks: ScaffolderTask[];
   }>;
+  listTemplateGlobalFunctions(): Promise<ListTemplateGlobalFunctionsResponse>;
+  listTemplateGlobalValues(): Promise<ListTemplateGlobalValuesResponse>;
   scaffold(
     options: ScaffolderScaffoldOptions,
   ): Promise<ScaffolderScaffoldResponse>;
@@ -490,6 +513,33 @@ export type TaskStream = {
     [stepId in string]: ScaffolderStep;
   };
   output?: ScaffolderTaskOutput;
+};
+
+// @public
+export type TemplateFilter = {
+  description?: string;
+  schema?: {
+    input?: JSONSchema7;
+    arguments?: JSONSchema7[];
+    output?: JSONSchema7;
+  };
+  examples?: Example[];
+};
+
+// @public
+export type TemplateGlobalFunction = {
+  description?: string;
+  schema?: {
+    arguments?: JSONSchema7[];
+    output?: JSONSchema7;
+  };
+  examples?: Example[];
+};
+
+// @public
+export type TemplateGlobalValue = {
+  description?: string;
+  value: JsonValue;
 };
 
 // @public (undocumented)

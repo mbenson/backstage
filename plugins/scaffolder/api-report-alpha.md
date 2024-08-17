@@ -283,6 +283,8 @@ export type TemplateListPageProps = {
     editor?: boolean;
     actions?: boolean;
     tasks?: boolean;
+    templateFilters?: boolean;
+    templateGlobals?: boolean;
   };
   headerOptions?: {
     pageTitleOverride?: string;
