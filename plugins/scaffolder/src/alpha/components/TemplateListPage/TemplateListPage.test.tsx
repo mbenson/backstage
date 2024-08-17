@@ -202,6 +202,8 @@ describe('TemplateListPage', () => {
               editor: false,
               actions: false,
               tasks: false,
+              templateFilters: false,
+              templateGlobals: false,
             }}
           />
         </TestApiProvider>,

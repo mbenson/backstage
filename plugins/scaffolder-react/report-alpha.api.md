@@ -195,6 +195,7 @@ export type ScaffolderPageContextMenuProps = {
   onActionsClicked?: () => void;
   onTasksClicked?: () => void;
   onCreateClicked?: () => void;
+  onTemplateExtensionsClicked?: () => void;
 };
 
 // @alpha (undocumented)
@@ -385,7 +386,7 @@ export type WorkflowProps = {
 // src/next/components/ScaffolderField/ScaffolderField.d.ts:13:5 - (ae-undocumented) Missing documentation for "disabled".
 // src/next/components/ScaffolderField/ScaffolderField.d.ts:14:5 - (ae-undocumented) Missing documentation for "displayLabel".
 // src/next/components/ScaffolderPageContextMenu/ScaffolderPageContextMenu.d.ts:5:1 - (ae-undocumented) Missing documentation for "ScaffolderPageContextMenuProps".
-// src/next/components/ScaffolderPageContextMenu/ScaffolderPageContextMenu.d.ts:14:1 - (ae-undocumented) Missing documentation for "ScaffolderPageContextMenu".
+// src/next/components/ScaffolderPageContextMenu/ScaffolderPageContextMenu.d.ts:15:1 - (ae-undocumented) Missing documentation for "ScaffolderPageContextMenu".
 // src/next/components/Stepper/createAsyncValidators.d.ts:6:1 - (ae-undocumented) Missing documentation for "FormValidation".
 // src/next/components/Stepper/createAsyncValidators.d.ts:10:22 - (ae-undocumented) Missing documentation for "createAsyncValidators".
 // src/next/components/TaskSteps/TaskSteps.d.ts:10:5 - (ae-undocumented) Missing documentation for "steps".

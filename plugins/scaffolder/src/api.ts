@@ -22,29 +22,30 @@ import {
 } from '@backstage/core-plugin-api';
 import { ResponseError } from '@backstage/errors';
 import { ScmIntegrationRegistry } from '@backstage/integration';
-import { Observable } from '@backstage/types';
-import qs from 'qs';
-import ObservableImpl from 'zen-observable';
 import {
   ListActionsResponse,
+  ListTemplateExtensionsResponse,
   LogEvent,
   ScaffolderApi,
+  ScaffolderDryRunOptions,
+  ScaffolderDryRunResponse,
+  ScaffolderGetIntegrationsListOptions,
+  ScaffolderGetIntegrationsListResponse,
   ScaffolderScaffoldOptions,
   ScaffolderScaffoldResponse,
   ScaffolderStreamLogsOptions,
-  ScaffolderGetIntegrationsListOptions,
-  ScaffolderGetIntegrationsListResponse,
   ScaffolderTask,
-  ScaffolderDryRunOptions,
-  ScaffolderDryRunResponse,
   TemplateParameterSchema,
 } from '@backstage/plugin-scaffolder-react';
+import { Observable } from '@backstage/types';
+import qs from 'qs';
+import ObservableImpl from 'zen-observable';
 
-import queryString from 'qs';
 import {
   EventSourceMessage,
   fetchEventSource,
 } from '@microsoft/fetch-event-source';
+import queryString from 'qs';
 
 /**
  * An API to interact with the scaffolder backend.
@@ -319,6 +320,17 @@ export class ScaffolderClient implements ScaffolderApi {
     }
 
     return await response.json();
+  }
+
+  async listTemplateExtensions(): Promise<ListTemplateExtensionsResponse> {
+    const baseUrl = await this.discoveryApi.getBaseUrl('scaffolder');
+    const response = await this.fetchApi.fetch(
+      `${baseUrl}/v2/template-extensions`,
+    );
+    if (!response.ok) {
+      throw ResponseError.fromResponse(response);
+    }
+    return response.json();
   }
 
   async cancelTask(taskId: string): Promise<void> {
