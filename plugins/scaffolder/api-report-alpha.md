@@ -188,11 +188,6 @@ export const scaffolderTranslationRef: TranslationRef<
     readonly 'fields.repoUrlPicker.repository.inputTitle': 'Repository';
     readonly 'actionsPage.content.emptyState.title': 'No information to display';
     readonly 'actionsPage.content.emptyState.description': 'There are no actions installed or there was an issue communicating with backend.';
-    readonly 'actionsPage.content.tableCell.type': 'Type';
-    readonly 'actionsPage.content.tableCell.name': 'Name';
-    readonly 'actionsPage.content.tableCell.title': 'Title';
-    readonly 'actionsPage.content.tableCell.description': 'Description';
-    readonly 'actionsPage.content.noRowsDescription': 'No schema defined';
     readonly 'actionsPage.title': 'Installed actions';
     readonly 'actionsPage.action.input': 'Input';
     readonly 'actionsPage.action.output': 'Output';
@@ -227,6 +222,27 @@ export const scaffolderTranslationRef: TranslationRef<
     readonly 'ongoingTask.startOverButtonTitle': 'Start Over';
     readonly 'ongoingTask.hideLogsButtonTitle': 'Hide Logs';
     readonly 'ongoingTask.showLogsButtonTitle': 'Show Logs';
+    readonly 'renderSchema.undefined': 'No schema defined';
+    readonly 'renderSchema.tableCell.type': 'Type';
+    readonly 'renderSchema.tableCell.name': 'Name';
+    readonly 'renderSchema.tableCell.title': 'Title';
+    readonly 'renderSchema.tableCell.description': 'Description';
+    readonly 'templateExtensions.title': 'Template extensions';
+    readonly 'templateExtensions.subtitle': 'This is the collection of available template extensions';
+    readonly 'templateExtensions.emptyState.title': 'No information to display';
+    readonly 'templateExtensions.emptyState.description': 'There are no template extensions available or there was an issue communicating with the backend.';
+    readonly 'templateExtensions.filters.title': 'Template filters';
+    readonly 'templateExtensions.filters.schema.input': 'Input';
+    readonly 'templateExtensions.filters.schema.output': 'Output';
+    readonly 'templateExtensions.filters.schema.arguments': 'Arguments';
+    readonly 'templateExtensions.filters.examples': 'Examples';
+    readonly 'templateExtensions.filters.metadataAbsent': 'Filter metadata unavailable';
+    readonly 'templateExtensions.pageTitle': 'Template extensions';
+    readonly 'templateExtensions.globals.values.title': 'Template global values';
+    readonly 'templateExtensions.globals.functions.title': 'Template global functions';
+    readonly 'templateExtensions.globals.functions.schema.output': 'Output';
+    readonly 'templateExtensions.globals.functions.schema.arguments': 'Arguments';
+    readonly 'templateExtensions.globals.functions.examples': 'Examples';
     readonly 'templateTypePicker.title': 'Categories';
     readonly 'templateEditorPage.title': 'Template Editor';
     readonly 'templateEditorPage.subtitle': 'Edit, preview, and try out templates and template forms';
@@ -283,6 +299,8 @@ export type TemplateListPageProps = {
     editor?: boolean;
     actions?: boolean;
     tasks?: boolean;
+    templateFilters?: boolean;
+    templateGlobals?: boolean;
   };
   headerOptions?: {
     pageTitleOverride?: string;

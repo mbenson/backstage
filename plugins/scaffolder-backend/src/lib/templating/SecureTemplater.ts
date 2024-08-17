@@ -187,7 +187,7 @@ export class SecureTemplater {
         if (!Object.hasOwn(templateFilters, filterName)) {
           return '';
         }
-        return JSON.stringify(templateFilters[filterName](...args));
+        return JSON.stringify((templateFilters[filterName] as any)(...args));
       },
     );
 

@@ -26,6 +26,7 @@ import { JSX as JSX_2 } from 'react';
 import { LayoutOptions as LayoutOptions_2 } from '@backstage/plugin-scaffolder-react';
 import { LayoutTemplate as LayoutTemplate_2 } from '@backstage/plugin-scaffolder-react';
 import { ListActionsResponse as ListActionsResponse_2 } from '@backstage/plugin-scaffolder-react';
+import { ListTemplateExtensionsResponse } from '@backstage/plugin-scaffolder-react';
 import { LogEvent as LogEvent_2 } from '@backstage/plugin-scaffolder-react';
 import { Observable } from '@backstage/types';
 import { PathParams } from '@backstage/core-plugin-api';
@@ -562,6 +563,8 @@ export class ScaffolderClient implements ScaffolderApi_2 {
     tasks: ScaffolderTask_2[];
   }>;
   // (undocumented)
+  listTemplateExtensions(): Promise<ListTemplateExtensionsResponse>;
+  // (undocumented)
   scaffold(
     options: ScaffolderScaffoldOptions_2,
   ): Promise<ScaffolderScaffoldResponse_2>;
@@ -612,6 +615,7 @@ export const scaffolderPlugin: BackstagePlugin<
     actions: SubRouteRef<undefined>;
     listTasks: SubRouteRef<undefined>;
     edit: SubRouteRef<undefined>;
+    templateExtensions: SubRouteRef<undefined>;
   },
   {
     registerComponent: ExternalRouteRef<undefined, true>;

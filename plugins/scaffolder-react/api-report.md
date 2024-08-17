@@ -56,11 +56,8 @@ export type Action = {
   examples?: ActionExample[];
 };
 
-// @public
-export type ActionExample = {
-  description: string;
-  example: string;
-};
+// @public @deprecated
+export type ActionExample = TemplatingExample;
 
 // @public
 export function createScaffolderFieldExtension<
@@ -156,6 +153,15 @@ export type LayoutTemplate<T = any> = NonNullable<
 export type ListActionsResponse = Array<Action>;
 
 // @public
+export type ListTemplateExtensionsResponse = {
+  filters: Record<string, TemplateFilter>;
+  globals: {
+    functions: Record<string, TemplateGlobalFunction>;
+    values: Record<string, TemplateGlobalValue>;
+  };
+};
+
+// @public
 export type LogEvent = {
   type: 'log' | 'completion' | 'cancelled' | 'recovered';
   body: {
@@ -213,6 +219,7 @@ export interface ScaffolderApi {
   listTasks?(options: { filterByOwnership: 'owned' | 'all' }): Promise<{
     tasks: ScaffolderTask[];
   }>;
+  listTemplateExtensions(): Promise<ListTemplateExtensionsResponse>;
   scaffold(
     options: ScaffolderScaffoldOptions,
   ): Promise<ScaffolderScaffoldResponse>;
@@ -492,6 +499,33 @@ export type TaskStream = {
   output?: ScaffolderTaskOutput;
 };
 
+// @public
+export type TemplateFilter = {
+  description?: string;
+  schema?: {
+    input?: JSONSchema7;
+    arguments?: JSONSchema7[];
+    output?: JSONSchema7;
+  };
+  examples?: TemplatingExample[];
+};
+
+// @public
+export type TemplateGlobalFunction = {
+  description?: string;
+  schema?: {
+    arguments?: JSONSchema7[];
+    output?: JSONSchema7;
+  };
+  examples?: TemplatingExample[];
+};
+
+// @public
+export type TemplateGlobalValue = {
+  description?: string;
+  value: JsonValue;
+};
+
 // @public (undocumented)
 export type TemplateGroupFilter = {
   title?: React.ReactNode;
@@ -508,6 +542,13 @@ export type TemplateParameterSchema = {
     description?: string;
     schema: JsonObject;
   }>;
+};
+
+// @public
+export type TemplatingExample = {
+  description?: string;
+  example: string;
+  notes?: string;
 };
 
 // @public

@@ -146,6 +146,56 @@ export function createBranch(options: {
   logger?: Logger | undefined;
 }): Promise<void>;
 
+// @public (undocumented)
+export type CreatedTemplateFilter<
+  S extends TemplateFilterSchema | undefined = undefined,
+  F extends S extends TemplateFilterSchema
+    ? TemplateFilterFunction<S>
+    : (
+        arg: JsonValue,
+        ...rest: JsonValue[]
+      ) => JsonValue | undefined = S extends TemplateFilterSchema
+    ? TemplateFilterFunction<S>
+    : (arg: JsonValue, ...rest: JsonValue[]) => JsonValue | undefined,
+> = {
+  id: string;
+  description?: string;
+  examples?: TemplateFilterExample[];
+  schema?: S;
+  filter: F;
+};
+
+// @public (undocumented)
+export type CreatedTemplateGlobal =
+  | CreatedTemplateGlobalValue<any>
+  | CreatedTemplateGlobalFunction<any, any>;
+
+// @public (undocumented)
+export type CreatedTemplateGlobalFunction<
+  S extends TemplateGlobalFunctionSchema | undefined = undefined,
+  F extends S extends TemplateGlobalFunctionSchema
+    ? SchemaCompliantTemplateGlobalFunction<S>
+    : (
+        arg: JsonValue,
+        ...rest: JsonValue[]
+      ) => JsonValue = S extends TemplateGlobalFunctionSchema
+    ? SchemaCompliantTemplateGlobalFunction<S>
+    : (...args: JsonValue[]) => JsonValue,
+> = {
+  id: string;
+  description?: string;
+  examples?: TemplateGlobalFunctionExample[];
+  schema?: S;
+  fn: F;
+};
+
+// @public (undocumented)
+export type CreatedTemplateGlobalValue<T extends JsonValue = JsonValue> = {
+  id: string;
+  value: T;
+  description?: string;
+};
+
 // @public
 export const createTemplateAction: <
   TInputParams extends JsonObject = JsonObject,
@@ -174,6 +224,20 @@ export const createTemplateAction: <
     TOutputSchema
   >,
 ) => TemplateAction<TActionInput, TActionOutput>;
+
+// @public
+export const createTemplateFilter: <TF extends CreatedTemplateFilter<any, any>>(
+  filter: TF,
+) => TF;
+
+// @public
+export const createTemplateGlobal: <
+  T extends
+    | CreatedTemplateGlobalValue<any>
+    | CreatedTemplateGlobalFunction<any, any>,
+>(
+  t: T,
+) => T;
 
 // @public
 export function deserializeDirectoryContents(
@@ -255,6 +319,22 @@ export const parseRepoUrl: (
   workspace?: string | undefined;
   project?: string | undefined;
 };
+
+// @public (undocumented)
+export type SchemaCompliantTemplateGlobalFunction<
+  T extends TemplateGlobalFunctionSchema,
+> = z.ZodFunction<
+  z.ZodTuple<
+    [
+      ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
+        ? Items
+        : [ReturnType<NonNullable<T['arguments']>>]),
+    ]
+  >,
+  T['output'] extends (zImpl: typeof z) => z.ZodType
+    ? ReturnType<T['output']>
+    : z.ZodUnknown
+>;
 
 // @public (undocumented)
 export interface SerializedFile {
@@ -453,10 +533,59 @@ export type TemplateExample = {
 };
 
 // @public (undocumented)
-export type TemplateFilter = (...args: JsonValue[]) => JsonValue | undefined;
+export type TemplateFilter = (
+  arg: JsonValue,
+  ...rest: JsonValue[]
+) => JsonValue | undefined;
 
 // @public (undocumented)
-export type TemplateGlobal =
-  | ((...args: JsonValue[]) => JsonValue | undefined)
-  | JsonValue;
+export type TemplateFilterExample = {
+  description?: string;
+  example: string;
+  notes?: string;
+};
+
+// @public (undocumented)
+export type TemplateFilterFunction<T extends TemplateFilterSchema> =
+  z.ZodFunction<
+    z.ZodTuple<
+      [
+        T['input'] extends (zImpl: typeof z) => z.ZodType
+          ? ReturnType<T['input']>
+          : z.ZodAny,
+        ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
+          ? Items
+          : [ReturnType<NonNullable<T['arguments']>>]),
+      ]
+    >,
+    T['output'] extends (zImpl: typeof z) => z.ZodType
+      ? ReturnType<T['output']>
+      : z.ZodUnknown
+  >;
+
+// @public (undocumented)
+export type TemplateFilterSchema = {
+  [K in 'input' | 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
+};
+
+// @public (undocumented)
+export type TemplateGlobal = TemplateGlobalFunction | JsonValue;
+
+// @public (undocumented)
+export type TemplateGlobalFunction<
+  Args extends JsonValue[] = JsonValue[],
+  Output extends JsonValue | undefined = JsonValue | undefined,
+> = (...args: Args) => Output;
+
+// @public (undocumented)
+export type TemplateGlobalFunctionExample = {
+  description?: string;
+  example: string;
+  notes?: string;
+};
+
+// @public (undocumented)
+export type TemplateGlobalFunctionSchema = {
+  [K in 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
+};
 ```
