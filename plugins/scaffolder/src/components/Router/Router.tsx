@@ -41,6 +41,7 @@ import {
   scaffolderTaskRouteRef,
   selectedTemplateRouteRef,
   templateFormRouteRef,
+  templateExtensionsRouteRef,
 } from '../../routes';
 import { ErrorPage } from '@backstage/core-components';
 
@@ -59,6 +60,7 @@ import {
   TemplateEditorPage,
   CustomFieldsPage,
 } from '../../next/TemplateEditorPage';
+import { TemplateExtensionsPage } from '../TemplateExtensionsPage';
 
 /**
  * The Props for the Scaffolder Router
@@ -212,6 +214,10 @@ export const Router = (props: PropsWithChildren<RouterProps>) => {
             />
           </SecretsContextProvider>
         }
+      />
+      <Route
+        path={templateExtensionsRouteRef.path}
+        element={<TemplateExtensionsPage />}
       />
       <Route
         path="*"

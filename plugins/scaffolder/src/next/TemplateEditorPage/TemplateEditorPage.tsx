@@ -27,6 +27,7 @@ import {
   rootRouteRef,
   scaffolderListTaskRouteRef,
   templateFormRouteRef,
+  templateExtensionsRouteRef,
 } from '../../routes';
 import { useTranslationRef } from '@backstage/core-plugin-api/alpha';
 import { scaffolderTranslationRef } from '../../translation';
@@ -42,12 +43,14 @@ export function TemplateEditorPage() {
   const customFieldsLink = useRouteRef(customFieldsRouteRef);
   const templateFormLink = useRouteRef(templateFormRouteRef);
   const { t } = useTranslationRef(scaffolderTranslationRef);
+  const templateExtensionsLink = useRouteRef(templateExtensionsRouteRef);
 
   const scaffolderPageContextMenuProps = {
     onEditorClicked: undefined,
     onActionsClicked: () => navigate(actionsLink()),
     onTasksClicked: () => navigate(tasksLink()),
     onCreateClicked: () => navigate(createLink()),
+    onTemplateExtensionsClicked: () => navigate(templateExtensionsLink()),
   };
 
   return (

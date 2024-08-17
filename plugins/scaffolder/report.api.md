@@ -26,6 +26,7 @@ import { JSX as JSX_2 } from 'react';
 import { LayoutOptions as LayoutOptions_2 } from '@backstage/plugin-scaffolder-react';
 import { LayoutTemplate as LayoutTemplate_2 } from '@backstage/plugin-scaffolder-react';
 import { ListActionsResponse as ListActionsResponse_2 } from '@backstage/plugin-scaffolder-react';
+import { ListTemplateExtensionsResponse } from '@backstage/plugin-scaffolder-react';
 import { LogEvent as LogEvent_2 } from '@backstage/plugin-scaffolder-react';
 import { Observable } from '@backstage/types';
 import { PathParams } from '@backstage/core-plugin-api';
@@ -562,6 +563,8 @@ export class ScaffolderClient implements ScaffolderApi_2 {
     tasks: ScaffolderTask_2[];
   }>;
   // (undocumented)
+  listTemplateExtensions(): Promise<ListTemplateExtensionsResponse>;
+  // (undocumented)
   scaffold(
     options: ScaffolderScaffoldOptions_2,
   ): Promise<ScaffolderScaffoldResponse_2>;
@@ -615,6 +618,7 @@ export const scaffolderPlugin: BackstagePlugin<
     editor: SubRouteRef<undefined>;
     customFields: SubRouteRef<undefined>;
     templateForm: SubRouteRef<undefined>;
+    templateExtensions: SubRouteRef<undefined>;
   },
   {
     registerComponent: ExternalRouteRef<undefined, true>;
@@ -681,8 +685,9 @@ export const useTemplateSecrets: () => ScaffolderUseTemplateSecrets_2;
 // src/api.d.ts:32:5 - (ae-undocumented) Missing documentation for "streamLogs".
 // src/api.d.ts:33:5 - (ae-undocumented) Missing documentation for "dryRun".
 // src/api.d.ts:36:5 - (ae-undocumented) Missing documentation for "listActions".
-// src/api.d.ts:37:5 - (ae-undocumented) Missing documentation for "cancelTask".
-// src/api.d.ts:38:5 - (ae-undocumented) Missing documentation for "autocomplete".
+// src/api.d.ts:37:5 - (ae-undocumented) Missing documentation for "listTemplateExtensions".
+// src/api.d.ts:38:5 - (ae-undocumented) Missing documentation for "cancelTask".
+// src/api.d.ts:39:5 - (ae-undocumented) Missing documentation for "autocomplete".
 // src/components/OngoingTask/OngoingTask.d.ts:6:22 - (ae-undocumented) Missing documentation for "OngoingTask".
 // src/components/fields/EntityPicker/schema.d.ts:15:22 - (ae-undocumented) Missing documentation for "EntityPickerFieldSchema".
 // src/components/fields/EntityTagsPicker/schema.d.ts:4:22 - (ae-undocumented) Missing documentation for "EntityTagsPickerFieldSchema".
