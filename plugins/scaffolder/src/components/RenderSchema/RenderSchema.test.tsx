@@ -482,17 +482,17 @@ describe('JSON schema UI rendering', () => {
         const tr = getByTestId(`properties-row_test.${k}`);
         expect(tr).toBeInTheDocument();
 
-        const alt = getByTestId(`properties-row_test_alt${i}.${k}`);
-        expect(alt).toBeInTheDocument();
+        const sub = getByTestId(`properties-row_test_sub${i}.${k}`);
+        expect(sub).toBeInTheDocument();
 
         expect(
-          Array.from(within(alt).getByText(k).classList).some(c =>
+          Array.from(within(sub).getByText(k).classList).some(c =>
             c.includes('codeRequired'),
           ),
         ).toBe(true);
 
         expect(
-          getByTestId(`properties-row_test_alt${i}.${k}Flag`),
+          getByTestId(`properties-row_test_sub${i}.${k}Flag`),
         ).toBeInTheDocument();
       }
     });
@@ -531,11 +531,11 @@ describe('JSON schema UI rendering', () => {
       const rendered = await renderInTestApp(
         <LocalRenderSchema strategy="properties" {...{ schema }} />,
       );
-      const alts = schema.oneOf as JSONSchema7[];
-      for (const i of alts.keys()) {
-        for (const k of keys(alts[i].properties!)) {
+      const subs = schema.oneOf as JSONSchema7[];
+      for (const i of subs.keys()) {
+        for (const k of keys(subs[i].properties!)) {
           expect(
-            rendered.getByTestId(`properties-row_test_alt${i}.${k}`),
+            rendered.getByTestId(`properties-row_test_sub${i}.${k}`),
           ).toBeInTheDocument();
         }
       }

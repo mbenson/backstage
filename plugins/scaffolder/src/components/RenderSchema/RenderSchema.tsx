@@ -39,7 +39,17 @@ import {
   JSONSchema7Definition,
   JSONSchema7Type,
 } from 'json-schema';
-import { entries, filter, first, get, map, omit, pickBy } from 'lodash';
+import {
+  entries,
+  filter,
+  first,
+  get,
+  map,
+  mapValues,
+  omit,
+  pick,
+  pickBy,
+} from 'lodash';
 import React from 'react';
 import { SchemaRenderContext, SchemaRenderStrategy } from './types';
 
@@ -57,26 +67,36 @@ const getTypes = (properties: JSONSchema7) => {
   ];
 };
 
-const getAlts = (
+const getSubschemas = (
   schema: JSONSchema7Definition,
-): JSONSchema7Definition[] | undefined => {
-  if (typeof schema === 'boolean' || !schema.oneOf?.length) {
-    return undefined;
+): Record<string, JSONSchema7Definition[]> => {
+  if (typeof schema === 'boolean') {
+    return {};
   }
-  const base = omit(schema, 'oneOf');
-  return schema.oneOf.map(alt => {
-    if (typeof alt !== 'boolean' && Object.hasOwn(alt, 'required')) {
-      return {
-        ...base,
-        ...alt,
-        properties: {
-          ...pickBy(schema.properties, (_, k) => alt.required?.includes(k)),
-          ...alt.properties,
-        },
-      };
-    }
-    return alt;
-  });
+  const compositeSchemaProperties = ['allOf', 'anyOf', 'not', 'oneOf'] as const;
+  const base = omit(schema, compositeSchemaProperties);
+
+  const subschemas = pickBy(
+    mapValues(pickBy(pick(schema, compositeSchemaProperties)), v =>
+      Array.isArray(v) ? v : [v],
+    ),
+    a => a.length,
+  );
+  return mapValues(subschemas, v =>
+    v.map((sub: JSONSchema7Definition): JSONSchema7Definition => {
+      if (typeof sub !== 'boolean' && Object.hasOwn(sub, 'required')) {
+        return {
+          ...base,
+          ...sub,
+          properties: {
+            ...pickBy(schema.properties, (_, k) => sub.required?.includes(k)),
+            ...sub.properties,
+          },
+        };
+      }
+      return sub;
+    }),
+  );
 };
 
 type SchemaRenderElement = {
@@ -266,8 +286,8 @@ export const RenderSchema = ({
 }) => {
   const result = (() => {
     if (typeof schema === 'object') {
-      const alts =
-        strategy === 'root' || !context.parent ? getAlts(schema) : undefined;
+      const subschemas =
+        strategy === 'root' || !context.parent ? getSubschemas(schema) : {};
       let columns: Column[] | undefined;
       let elements: SchemaRenderElement[] | undefined;
       if (strategy === 'root') {
@@ -286,7 +306,7 @@ export const RenderSchema = ({
           key,
           required: schema.required?.includes(key),
         }));
-      } else if (!alts) {
+      } else if (!Object.keys(subschemas).length) {
         return undefined;
       }
       const [isExpanded] = context.expanded;
@@ -378,24 +398,24 @@ export const RenderSchema = ({
               </Table>
             </TableContainer>
           )}
-          {alts && (
-            <>
-              {React.cloneElement(context.headings[0], {}, 'oneOf')}
-              {alts.map((alt, index) => (
+          {Object.keys(subschemas).map(sk => (
+            <React.Fragment key={sk}>
+              {React.cloneElement(context.headings[0], {}, sk)}
+              {subschemas[sk].map((sub, index) => (
                 <RenderSchema
                   key={index}
                   {...{
                     strategy,
                     context: {
                       ...context,
-                      parentId: `${context.parentId}_alt${index}`,
+                      parentId: `${context.parentId}_sub${index}`,
                     },
-                    schema: alt,
+                    schema: sub,
                   }}
                 />
               ))}
-            </>
-          )}
+            </React.Fragment>
+          ))}
         </>
       );
     }
