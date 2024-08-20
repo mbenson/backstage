@@ -53,6 +53,12 @@ import {
 import { ExamplesTable } from '../ExamplesTable/ExamplesTable';
 import { Expanded, SchemaRenderContext } from '../RenderSchema';
 import { RenderSchema } from '../RenderSchema/RenderSchema';
+import {
+  TranslationFunction,
+  TranslationRef,
+  useTranslationRef,
+} from '@backstage/core-plugin-api/alpha';
+import { scaffolderTranslationRef } from '../../translation';
 
 const useStyles = makeStyles(theme => ({
   code: {
@@ -80,11 +86,32 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+type Xlate<R> = R extends TranslationRef<any, infer M>
+  ? TranslationFunction<M>
+  : never;
+
+type FilterCategory = {
+  id: string;
+  emptyState: {
+    title: string;
+    description: string;
+  };
+  metadataAbsent: string;
+  schema: {
+    input: string;
+    arguments: string;
+    output: string;
+  };
+  examples: string;
+};
+
 const FilterDetailContent = ({
+  category,
   classes,
   filterName,
   filter,
 }: {
+  category: FilterCategory;
   classes: ClassNameMap;
   filterName: string;
   filter: TemplateFilter;
@@ -93,7 +120,7 @@ const FilterDetailContent = ({
   if (Object.keys(filter).length === 0) {
     return (
       <Typography style={{ fontStyle: 'italic' }}>
-        Filter metadata unavailable
+        {category.metadataAbsent}
       </Typography>
     );
   }
@@ -108,7 +135,7 @@ const FilterDetailContent = ({
       {filter.description && <MarkdownContent content={filter.description} />}
       <Box pb={2}>
         <Typography variant="h5" component="h3">
-          Input
+          {category.schema.input}
         </Typography>
         <RenderSchema
           strategy="root"
@@ -122,7 +149,7 @@ const FilterDetailContent = ({
       {schema?.arguments?.length && (
         <Box key={`${filterName}.args`} pb={2}>
           <Typography variant="h5" component="h3">
-            Arguments
+            {category.schema.arguments}
           </Typography>
           {schema.arguments.map((arg, i) => (
             <React.Fragment key={i}>
@@ -142,7 +169,7 @@ const FilterDetailContent = ({
       )}
       <Box pb={2}>
         <Typography variant="h5" component="h3">
-          Output
+          {category.schema.output}
         </Typography>
         <RenderSchema
           strategy="root"
@@ -157,7 +184,7 @@ const FilterDetailContent = ({
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="h5" component="h3">
-              Examples
+              {category.examples}
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -171,12 +198,12 @@ const FilterDetailContent = ({
   );
 };
 
-const TemplateFiltersCategory = ({
+const TemplateFilters = ({
   category,
   classes,
   state,
 }: {
-  category: string;
+  category: FilterCategory;
   classes: ClassNameMap;
   state: AsyncState<ListTemplateFiltersResponse>;
 }) => {
@@ -187,17 +214,12 @@ const TemplateFiltersCategory = ({
   }
   if (error || !value || Object.keys(value).length === 0) {
     return (
-      <div data-testid={category}>
+      <div data-testid={category.id}>
         {error && <ErrorPanel error={error} />}
-        <EmptyState
-          missing="info"
-          title="No information to display"
-          description={`There are no ${category} template filters available or there was an issue communicating with the backend.`}
-        />
+        <EmptyState missing="info" {...category.emptyState} />
       </div>
     );
   }
-
   return (
     <>
       {Object.entries(value).map(([filterName, filter]) => (
@@ -205,14 +227,18 @@ const TemplateFiltersCategory = ({
           <Typography variant="h4" component="h2" className={classes.code}>
             {filterName}
           </Typography>
-          <FilterDetailContent {...{ classes, filterName, filter }} />
+          <FilterDetailContent {...{ category, classes, filterName, filter }} />
         </Box>
       ))}
     </>
   );
 };
 
-const TemplateFiltersPageContent = () => {
+const TemplateFiltersPageContent = ({
+  t,
+}: {
+  t: Xlate<typeof scaffolderTranslationRef>;
+}) => {
   const api = useApi(scaffolderApiRef);
 
   const classes = useStyles();
@@ -228,18 +254,50 @@ const TemplateFiltersPageContent = () => {
   return (
     <>
       <Typography variant="h3" component="h1" className={classes.code}>
-        Built-in
+        {t('templateFilters.content.builtIn.heading')}
       </Typography>
-      <TemplateFiltersCategory
-        category="built-in"
+      <TemplateFilters
+        category={{
+          id: 'built-in',
+          emptyState: {
+            title: t('templateFilters.content.builtIn.emptyState.title'),
+            description: t(
+              'templateFilters.content.builtIn.emptyState.description',
+            ),
+          },
+          metadataAbsent: t('templateFilters.content.builtIn.metadataAbsent'),
+          schema: {
+            input: t('templateFilters.content.builtIn.schema.input'),
+            arguments: t('templateFilters.content.builtIn.schema.arguments'),
+            output: t('templateFilters.content.builtIn.schema.output'),
+          },
+          examples: t('templateFilters.content.builtIn.examples'),
+        }}
         classes={classes}
         state={builtIn}
       />
       <Typography variant="h3" component="h1" className={classes.code}>
-        Additional
+        {t('templateFilters.content.additional.heading')}
       </Typography>
-      <TemplateFiltersCategory
-        category="additional"
+      <TemplateFilters
+        category={{
+          id: 'additional',
+          emptyState: {
+            title: t('templateFilters.content.additional.emptyState.title'),
+            description: t(
+              'templateFilters.content.additional.emptyState.description',
+            ),
+          },
+          metadataAbsent: t(
+            'templateFilters.content.additional.metadataAbsent',
+          ),
+          schema: {
+            input: t('templateFilters.content.additional.schema.input'),
+            arguments: t('templateFilters.content.additional.schema.arguments'),
+            output: t('templateFilters.content.additional.schema.output'),
+          },
+          examples: t('templateFilters.content.additional.examples'),
+        }}
         classes={classes}
         state={additional}
       />
@@ -263,17 +321,19 @@ export const TemplateFiltersPage = () => {
     onTemplateGlobalsClicked: () => navigate(templateGlobalsLink()),
   };
 
+  const { t } = useTranslationRef(scaffolderTranslationRef);
+
   return (
     <Page themeId="home">
       <Header
-        pageTitleOverride="Template filters"
-        title="Template filters"
-        subtitle="This is the collection of available template filters"
+        pageTitleOverride={t('templateFilters.pageTitle')}
+        title={t('templateFilters.title')}
+        subtitle={t('templateFilters.subtitle')}
       >
         <ScaffolderPageContextMenu {...scaffolderPageContextMenuProps} />
       </Header>
       <Content>
-        <TemplateFiltersPageContent />
+        <TemplateFiltersPageContent {...{ t }} />
       </Content>
     </Page>
   );

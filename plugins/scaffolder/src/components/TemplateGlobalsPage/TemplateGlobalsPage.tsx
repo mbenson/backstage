@@ -55,6 +55,12 @@ import {
 import { ExamplesTable } from '../ExamplesTable/ExamplesTable';
 import { Expanded, SchemaRenderContext } from '../RenderSchema';
 import { RenderSchema } from '../RenderSchema/RenderSchema';
+import {
+  TranslationFunction,
+  TranslationRef,
+  useTranslationRef,
+} from '@backstage/core-plugin-api/alpha';
+import { scaffolderTranslationRef } from '../../translation';
 
 const useStyles = makeStyles(theme => ({
   code: {
@@ -82,14 +88,20 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+type Xlate<R> = R extends TranslationRef<any, infer M>
+  ? TranslationFunction<M>
+  : never;
+
 const FunctionDetailContent = ({
   classes,
   fnName,
   fn,
+  t,
 }: {
   classes: ClassNameMap;
   fnName: string;
   fn: TemplateGlobalFunction;
+  t: Xlate<typeof scaffolderTranslationRef>;
 }) => {
   const expanded = useState<Expanded>({});
   if (Object.keys(fn).length === 0) {
@@ -111,7 +123,7 @@ const FunctionDetailContent = ({
       {schema?.arguments?.length && (
         <Box key={`${fnName}.args`} pb={2}>
           <Typography variant="h5" component="h3">
-            Arguments
+            {t('templateGlobals.content.fn.schema.arguments')}
           </Typography>
           {schema.arguments.map((arg, i) => (
             <React.Fragment key={i}>
@@ -131,7 +143,7 @@ const FunctionDetailContent = ({
       )}
       <Box pb={2}>
         <Typography variant="h5" component="h3">
-          Output
+          {t('templateGlobals.content.fn.schema.output')}
         </Typography>
         <RenderSchema
           strategy="root"
@@ -146,7 +158,7 @@ const FunctionDetailContent = ({
         <Accordion>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant="h5" component="h3">
-              Examples
+              {t('templateGlobals.content.fn.examples')}
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -163,9 +175,11 @@ const FunctionDetailContent = ({
 const TemplateGlobalFunctions = ({
   classes,
   state,
+  t,
 }: {
   classes: ClassNameMap;
   state: AsyncState<ListTemplateGlobalFunctionsResponse>;
+  t: Xlate<typeof scaffolderTranslationRef>;
 }) => {
   const { loading, value, error } = state;
 
@@ -178,8 +192,8 @@ const TemplateGlobalFunctions = ({
         {error && <ErrorPanel error={error} />}
         <EmptyState
           missing="info"
-          title="No information to display"
-          description="There are no global template functions available or there was an issue communicating with the backend."
+          title={t('templateGlobals.content.fn.emptyState.title')}
+          description={t('templateGlobals.content.fn.emptyState.description')}
         />
       </div>
     );
@@ -191,7 +205,7 @@ const TemplateGlobalFunctions = ({
           <Typography variant="h4" component="h2" className={classes.code}>
             {fnName}
           </Typography>
-          <FunctionDetailContent {...{ classes, fnName, fn }} />
+          <FunctionDetailContent {...{ classes, fnName, fn, t }} />
         </Box>
       ))}
     </>
@@ -201,9 +215,11 @@ const TemplateGlobalFunctions = ({
 const TemplateGlobalValues = ({
   classes,
   state,
+  t,
 }: {
   classes: ClassNameMap;
   state: AsyncState<ListTemplateGlobalValuesResponse>;
+  t: Xlate<typeof scaffolderTranslationRef>;
 }) => {
   const { loading, value, error } = state;
 
@@ -216,8 +232,8 @@ const TemplateGlobalValues = ({
         {error && <ErrorPanel error={error} />}
         <EmptyState
           missing="info"
-          title="No information to display"
-          description="There are no global template values available or there was an issue communicating with the backend."
+          title={t('templateGlobals.content.value.emptyState.title')}
+          description={t('templateGlobals.content.fn.emptyState.description')}
         />
       </div>
     );
@@ -243,7 +259,11 @@ const TemplateGlobalValues = ({
   );
 };
 
-const TemplateGlobalsPageContent = () => {
+const TemplateGlobalsPageContent = ({
+  t,
+}: {
+  t: Xlate<typeof scaffolderTranslationRef>;
+}) => {
   const api = useApi(scaffolderApiRef);
 
   const classes = useStyles();
@@ -259,13 +279,13 @@ const TemplateGlobalsPageContent = () => {
   return (
     <>
       <Typography variant="h3" component="h1" className={classes.code}>
-        Functions
+        {t('templateGlobals.content.fn.heading')}
       </Typography>
-      <TemplateGlobalFunctions classes={classes} state={fns} />
+      <TemplateGlobalFunctions state={fns} {...{ classes, t }} />
       <Typography variant="h3" component="h1" className={classes.code}>
-        Values
+        {t('templateGlobals.content.value.heading')}
       </Typography>
-      <TemplateGlobalValues classes={classes} state={vals} />
+      <TemplateGlobalValues state={vals} {...{ classes, t }} />
     </>
   );
 };
@@ -286,17 +306,19 @@ export const TemplateGlobalsPage = () => {
     onTemplateFiltersClicked: () => navigate(templateFiltersLink()),
   };
 
+  const { t } = useTranslationRef(scaffolderTranslationRef);
+
   return (
     <Page themeId="home">
       <Header
-        pageTitleOverride="Template globals"
-        title="Template globals"
-        subtitle="This is the collection of template globals"
+        pageTitleOverride={t('templateGlobals.pageTitle')}
+        title={t('templateGlobals.title')}
+        subtitle={t('templateGlobals.subtitle')}
       >
         <ScaffolderPageContextMenu {...scaffolderPageContextMenuProps} />
       </Header>
       <Content>
-        <TemplateGlobalsPageContent />
+        <TemplateGlobalsPageContent {...{ t }} />
       </Content>
     </Page>
   );
