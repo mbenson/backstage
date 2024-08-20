@@ -52,6 +52,12 @@ import {
 } from 'lodash';
 import React from 'react';
 import { SchemaRenderContext, SchemaRenderStrategy } from './types';
+import {
+  TranslationFunction,
+  TranslationRef,
+  useTranslationRef,
+} from '@backstage/core-plugin-api/alpha';
+import { scaffolderTranslationRef } from '../../translation';
 
 const getTypes = (properties: JSONSchema7) => {
   if (!properties.type) {
@@ -110,8 +116,13 @@ type RenderColumn = (
   context: SchemaRenderContext,
 ) => JSX.Element;
 
+type Xlate<R> = R extends TranslationRef<any, infer M>
+  ? TranslationFunction<M>
+  : never;
+
 type Column = {
-  name: () => string;
+  key: string;
+  title: (t: Xlate<typeof scaffolderTranslationRef>) => string;
   render: RenderColumn;
 };
 
@@ -122,16 +133,10 @@ const generateId = (
   return element.key ? `${context.parentId}.${element.key}` : context.parentId;
 };
 
-const column = (name: string, render: RenderColumn) => {
-  return {
-    name: () => name,
-    render,
-  };
-};
-
-const nameColumn = column(
-  'Name',
-  (element: SchemaRenderElement, context: SchemaRenderContext) => {
+const nameColumn = {
+  key: 'name',
+  title: t => t('renderSchema.tableCell.name'),
+  render: (element: SchemaRenderElement, context: SchemaRenderContext) => {
     return (
       <div
         className={classNames(context.classes.code, {
@@ -142,22 +147,27 @@ const nameColumn = column(
       </div>
     );
   },
-);
+} as Column;
 
-const titleColumn = column('Title', (element: SchemaRenderElement) => (
-  <MarkdownContent
-    content={get(element.schema as JSONSchema7, 'title') ?? ''}
-  />
-));
+const titleColumn = {
+  key: 'title',
+  title: t => t('renderSchema.tableCell.title'),
+  render: (element: SchemaRenderElement) => (
+    <MarkdownContent
+      content={get(element.schema as JSONSchema7, 'title') ?? ''}
+    />
+  ),
+} as Column;
 
-const descriptionColumn = column(
-  'Description',
-  (element: SchemaRenderElement) => (
+const descriptionColumn = {
+  key: 'description',
+  title: t => t('renderSchema.tableCell.description'),
+  render: (element: SchemaRenderElement) => (
     <MarkdownContent
       content={get(element.schema as JSONSchema7, 'description') ?? ''}
     />
   ),
-);
+} as Column;
 
 const enumFrom = (schema: JSONSchema7) => {
   if (schema.type === 'array') {
@@ -186,9 +196,10 @@ const inspectSchema = (
   };
 };
 
-const typeColumn = column(
-  'Type',
-  (element: SchemaRenderElement, context: SchemaRenderContext) => {
+const typeColumn = {
+  key: 'type',
+  title: t => t('renderSchema.tableCell.type'),
+  render: (element: SchemaRenderElement, context: SchemaRenderContext) => {
     if (typeof element.schema === 'boolean') {
       return <Typography>{element.schema ? 'any' : 'none'}</Typography>;
     }
@@ -222,7 +233,7 @@ const typeColumn = column(
       </>
     );
   },
-);
+} as Column;
 
 export const RenderEnum: React.FC<{
   e: JSONSchema7Type[];
@@ -284,6 +295,7 @@ export const RenderSchema = ({
   context: SchemaRenderContext;
   schema?: JSONSchema7Definition;
 }) => {
+  const { t } = useTranslationRef(scaffolderTranslationRef);
   const result = (() => {
     if (typeof schema === 'object') {
       const subschemas =
@@ -322,7 +334,7 @@ export const RenderSchema = ({
                 <TableHead>
                   <TableRow>
                     {columns.map((col, index) => (
-                      <TableCell key={index}>{col.name()}</TableCell>
+                      <TableCell key={index}>{col.title(t)}</TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
@@ -334,7 +346,7 @@ export const RenderSchema = ({
                       <React.Fragment key={id}>
                         <TableRow data-testid={`${strategy}-row_${id}`}>
                           {columns!.map(col => (
-                            <TableCell key={col.name()}>
+                            <TableCell key={col.key}>
                               {col.render(el, context)}
                             </TableCell>
                           ))}
