@@ -29,13 +29,6 @@ export const scaffolderTranslationRef = createTranslationRef({
           description:
             'There are no actions installed or there was an issue communicating with backend.',
         },
-        tableCell: {
-          name: 'Name',
-          title: 'Title',
-          description: 'Description',
-          type: 'Type',
-        },
-        noRowsDescription: 'No schema defined',
       },
       action: {
         input: 'Input',
@@ -182,6 +175,80 @@ export const scaffolderTranslationRef = createTranslationRef({
         showButtonBar: 'Show Button Bar',
         startOver: 'Start Over',
         cancel: 'Cancel',
+      },
+    },
+    renderSchema: {
+      tableCell: {
+        name: 'Name',
+        title: 'Title',
+        description: 'Description',
+        type: 'Type',
+      },
+      undefined: 'No schema defined',
+    },
+    templateFilters: {
+      title: 'Template filters',
+      pageTitle: 'Template filters',
+      subtitle: 'This is the collection of available template filters',
+      content: {
+        builtIn: {
+          heading: 'Built-in',
+          emptyState: {
+            title: 'No information to display',
+            description:
+              'There are no built-in template filters available or there was an issue communicating with the backend.',
+          },
+          metadataAbsent: 'Filter metadata unavailable',
+          schema: {
+            input: 'Input',
+            arguments: 'Arguments',
+            output: 'Output',
+          },
+          examples: 'Examples',
+        },
+        additional: {
+          heading: 'Additional',
+          emptyState: {
+            title: 'No information to display',
+            description:
+              'There are no additional template filters available or there was an issue communicating with the backend.',
+          },
+          metadataAbsent: 'Filter metadata unavailable',
+          schema: {
+            input: 'Input',
+            arguments: 'Arguments',
+            output: 'Output',
+          },
+          examples: 'Examples',
+        },
+      },
+    },
+    templateGlobals: {
+      title: 'Template globals',
+      pageTitle: 'Template globals',
+      subtitle: 'This is the collection of available template globals',
+      content: {
+        fn: {
+          heading: 'Functions',
+          emptyState: {
+            title: 'No information to display',
+            description:
+              'There are no global template functions available or there was an issue communicating with the backend.',
+          },
+          schema: {
+            arguments: 'Arguments',
+            output: 'Output',
+          },
+          examples: 'Examples',
+        },
+        value: {
+          heading: 'Values',
+          emptyState: {
+            title: 'No information to display',
+            description:
+              'There are no global template values available or there was an issue communicating with the backend.',
+          },
+        },
       },
     },
     templateTypePicker: {
