@@ -165,9 +165,8 @@ type ServiceRefsToInstances<
 
 /** @public */
 export interface RootServiceFactoryOptions<
-  TService, // TODO(Rugvip): Can we forward the entire service ref type here instead of forwarding each type arg once the callback form is gone?
   TInstances extends 'singleton' | 'multiton',
-  TImpl extends TService,
+  TImpl extends ServiceRef<unknown, 'root', TInstances>,
   TDeps extends { [name in string]: ServiceRef<unknown> },
 > {
   /**
@@ -181,17 +180,16 @@ export interface RootServiceFactoryOptions<
    * Service factories for root scoped services use `always` as the default, while plugin scoped services use `lazy`.
    */
   initialization?: 'always' | 'lazy';
-  service: ServiceRef<TService, 'root', TInstances>;
+  service: ServiceRef<unknown, 'root', TInstances>;
   deps: TDeps;
   factory(deps: ServiceRefsToInstances<TDeps, 'root'>): TImpl | Promise<TImpl>;
 }
 
 /** @public */
 export interface PluginServiceFactoryOptions<
-  TService,
   TInstances extends 'singleton' | 'multiton',
   TContext,
-  TImpl extends TService,
+  TImpl extends ServiceRef<unknown, 'plugin', TInstances>,
   TDeps extends { [name in string]: ServiceRef<unknown> },
 > {
   /**
@@ -205,7 +203,7 @@ export interface PluginServiceFactoryOptions<
    * Service factories for root scoped services use `always` as the default, while plugin scoped services use `lazy`.
    */
   initialization?: 'always' | 'lazy';
-  service: ServiceRef<TService, 'plugin', TInstances>;
+  service: ServiceRef<unknown, 'plugin', TInstances>;
   deps: TDeps;
   createRootContext?(
     deps: ServiceRefsToInstances<TDeps, 'root'>,
@@ -223,13 +221,16 @@ export interface PluginServiceFactoryOptions<
  * @param options - The service factory configuration.
  */
 export function createServiceFactory<
-  TService,
   TInstances extends 'singleton' | 'multiton',
-  TImpl extends TService,
+  TImpl extends ServiceRef<unknown, 'root', TInstances>,
   TDeps extends { [name in string]: ServiceRef<unknown, 'root'> },
 >(
-  options: RootServiceFactoryOptions<TService, TInstances, TImpl, TDeps>,
-): ServiceFactory<TService, 'root', TInstances>;
+  options: RootServiceFactoryOptions<TInstances, TImpl, TDeps>,
+): ServiceFactory<
+  ServiceRef<unknown, 'root', TInstances>['T'],
+  'root',
+  TInstances
+>;
 /**
  * Creates a plugin scoped service factory without options.
  *
@@ -237,36 +238,43 @@ export function createServiceFactory<
  * @param options - The service factory configuration.
  */
 export function createServiceFactory<
-  TService,
   TInstances extends 'singleton' | 'multiton',
-  TImpl extends TService,
+  TImpl extends ServiceRef<unknown, 'plugin', TInstances>,
   TDeps extends { [name in string]: ServiceRef<unknown> },
   TContext = undefined,
 >(
-  options: PluginServiceFactoryOptions<
-    TService,
-    TInstances,
-    TContext,
-    TImpl,
-    TDeps
-  >,
-): ServiceFactory<TService, 'plugin', TInstances>;
+  options: PluginServiceFactoryOptions<TInstances, TContext, TImpl, TDeps>,
+): ServiceFactory<
+  ServiceRef<unknown, 'plugin', TInstances>['T'],
+  'plugin',
+  TInstances
+>;
 export function createServiceFactory<
-  TService,
   TInstances extends 'singleton' | 'multiton',
-  TImpl extends TService,
   TDeps extends { [name in string]: ServiceRef<unknown> },
   TContext,
 >(
   options:
-    | RootServiceFactoryOptions<TService, TInstances, TImpl, TDeps>
-    | PluginServiceFactoryOptions<TService, TInstances, TContext, TImpl, TDeps>,
-): ServiceFactory<TService, 'root' | 'plugin', 'singleton' | 'multiton'> {
+    | RootServiceFactoryOptions<
+        TInstances,
+        ServiceRef<unknown, 'root', TInstances>,
+        TDeps
+      >
+    | PluginServiceFactoryOptions<
+        TInstances,
+        TContext,
+        ServiceRef<unknown, 'plugin', TInstances>,
+        TDeps
+      >,
+): ServiceFactory<
+  ServiceRef<unknown, 'root' | 'plugin', TInstances>,
+  'root' | 'plugin',
+  'singleton' | 'multiton'
+> {
   if (options.service.scope === 'root') {
     const c = options as RootServiceFactoryOptions<
-      TService,
       TInstances,
-      TImpl,
+      ServiceRef<unknown, 'root', TInstances>,
       TDeps
     >;
     return {
@@ -278,13 +286,16 @@ export function createServiceFactory<
       deps: options.deps,
       factory: async (deps: ServiceRefsToInstances<TDeps, 'root'>) =>
         c.factory(deps),
-    } as InternalServiceFactory<TService, 'root', TInstances>;
+    } as InternalServiceFactory<
+      ServiceRef<unknown, 'root', TInstances>,
+      'root',
+      TInstances
+    >;
   }
   const c = options as PluginServiceFactoryOptions<
-    TService,
     TInstances,
     TContext,
-    TImpl,
+    ServiceRef<unknown, 'plugin', TInstances>,
     TDeps
   >;
   return {
@@ -303,5 +314,9 @@ export function createServiceFactory<
     deps: options.deps,
     factory: async (deps: ServiceRefsToInstances<TDeps>, ctx: TContext) =>
       c.factory(deps, ctx),
-  } as InternalServiceFactory<TService, 'plugin', TInstances>;
+  } as InternalServiceFactory<
+    ServiceRef<unknown, 'plugin', TInstances>,
+    'plugin',
+    TInstances
+  >;
 }
