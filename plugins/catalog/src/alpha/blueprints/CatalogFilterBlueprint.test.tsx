@@ -33,6 +33,7 @@ describe('CatalogFilterBlueprint', () => {
     expect(extension).toMatchInlineSnapshot(`
       {
         "$$type": "@backstage/ExtensionDefinition",
+        "T": undefined,
         "attachTo": {
           "id": "page:catalog",
           "input": "filters",
