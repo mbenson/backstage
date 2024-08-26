@@ -26,6 +26,7 @@ import {
 } from '../wiring';
 import { MockConfigApi } from '@backstage/test-utils';
 import { PageBlueprint } from './PageBlueprint';
+import appPlugin from '@backstage/plugin-app';
 
 describe('RouterBlueprint', () => {
   it('should return an extension when calling make with sensible defaults', () => {
@@ -73,6 +74,7 @@ describe('RouterBlueprint', () => {
 
     const app = createSpecializedApp({
       features: [
+        appPlugin,
         createExtensionOverrides({
           extensions: [
             extension,
@@ -125,6 +127,7 @@ describe('RouterBlueprint', () => {
 
     const app = createSpecializedApp({
       features: [
+        appPlugin,
         createExtensionOverrides({
           extensions: [
             extension,

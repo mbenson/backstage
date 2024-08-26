@@ -47,7 +47,7 @@ describe('TranslationBlueprint', () => {
       {
         "$$type": "@backstage/ExtensionDefinition",
         "attachTo": {
-          "id": "api:translations",
+          "id": "api:app/translations",
           "input": "translations",
         },
         "configSchema": undefined,

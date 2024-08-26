@@ -50,6 +50,7 @@ import { instantiateAppNodeTree } from '../../../frontend-app-api/src/tree/insta
 // eslint-disable-next-line @backstage/no-relative-monorepo-imports
 import { readAppExtensionsConfig } from '../../../frontend-app-api/src/tree/readAppExtensionsConfig';
 import { TestApiRegistry } from '@backstage/test-utils';
+import appPlugin from '@backstage/plugin-app';
 
 const NavItem = (props: {
   routeRef: RouteRef<undefined>;
@@ -278,6 +279,7 @@ export class ExtensionTester<UOutput extends AnyExtensionDataRef> {
 
     const app = createSpecializedApp({
       features: [
+        appPlugin,
         createExtensionOverrides({
           extensions: [
             subjectOverride,
