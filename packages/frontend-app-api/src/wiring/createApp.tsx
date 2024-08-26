@@ -308,9 +308,8 @@ export function createSpecializedApp(options?: {
     ],
   });
 
-  for (const appNode of tree.root.edges.attachments.get('app') ?? []) {
-    instantiateAppNodeTree(appNode, apiHolder);
-  }
+  // Now instantiate the entire tree, which will skip anything that's already been instantiated
+  instantiateAppNodeTree(tree.root, apiHolder);
 
   routeResolutionApi.initialize();
   appTreeApi.initialize();
@@ -334,9 +333,7 @@ export function createSpecializedApp(options?: {
     }
   }
 
-  const rootEl = tree.root.edges.attachments
-    .get('app')![0]
-    .instance!.getData(coreExtensionData.reactElement);
+  const rootEl = tree.root.instance!.getData(coreExtensionData.reactElement);
 
   const AppComponent = () => rootEl;
 
