@@ -48,7 +48,7 @@
     "test": "backstage-cli package test"
   },
   "dependencies": {
-    "@backstage/backend-common": "workspace:^",
+    "@backstage/backend-common": "^0.24.1",
     "@backstage/backend-plugin-api": "workspace:^",
     "@backstage/config": "workspace:^",
     "@backstage/integration-aws-node": "workspace:^",
@@ -62,7 +62,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@backstage/backend-common": "workspace:^",
+    "@backstage/backend-common": "^0.24.1",
     "@backstage/backend-test-utils": "workspace:^",
     "@backstage/cli": "workspace:^",
     "@elastic/elasticsearch-mock": "^1.0.0",
