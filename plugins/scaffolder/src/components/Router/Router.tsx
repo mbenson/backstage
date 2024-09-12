@@ -38,8 +38,7 @@ import {
   scaffolderListTaskRouteRef,
   scaffolderTaskRouteRef,
   selectedTemplateRouteRef,
-  templateFiltersRouteRef,
-  templateGlobalsRouteRef,
+  templateExtensionsRouteRef,
 } from '../../routes';
 import { ErrorPage } from '@backstage/core-components';
 
@@ -53,8 +52,7 @@ import {
 import { TemplateListPage, TemplateWizardPage } from '../../next';
 import { OngoingTask } from '../OngoingTask';
 import { TemplateEditorPage } from '../../next/TemplateEditorPage';
-import { TemplateFiltersPage } from '../TemplateFiltersPage';
-import { TemplateGlobalsPage } from '../TemplateGlobalsPage';
+import { TemplateExtensionsPage } from '../TemplateExtensionsPage';
 
 /**
  * The Props for the Scaffolder Router
@@ -182,12 +180,8 @@ export const Router = (props: PropsWithChildren<RouterProps>) => {
         element={<ListTasksPage />}
       />
       <Route
-        path={templateFiltersRouteRef.path}
-        element={<TemplateFiltersPage />}
-      />
-      <Route
-        path={templateGlobalsRouteRef.path}
-        element={<TemplateGlobalsPage />}
+        path={templateExtensionsRouteRef.path}
+        element={<TemplateExtensionsPage />}
       />
       <Route
         path="*"

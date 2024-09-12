@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Example } from '@backstage/plugin-scaffolder-react';
+import { TemplatingExample } from '@backstage/plugin-scaffolder-react';
 import { renderInTestApp } from '@backstage/test-utils';
 import { within } from '@testing-library/react';
 import React from 'react';
@@ -21,7 +21,7 @@ import { ExamplesTable } from './ExamplesTable';
 
 describe('examples', () => {
   it('renders component', async () => {
-    const examples: Example[] = [
+    const examples: TemplatingExample[] = [
       {
         description: 'foo',
         example: 'bar',

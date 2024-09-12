@@ -35,10 +35,7 @@ const scaffolderApiMock: jest.Mocked<ScaffolderApi> = {
   getTask: jest.fn(),
   streamLogs: jest.fn(),
   listActions: jest.fn(),
-  listBuiltInTemplateFilters: jest.fn(),
-  listAdditionalTemplateFilters: jest.fn(),
-  listTemplateGlobalFunctions: jest.fn(),
-  listTemplateGlobalValues: jest.fn(),
+  listTemplateExtensions: jest.fn(),
   listTasks: jest.fn(),
   autocomplete: jest.fn(),
 };

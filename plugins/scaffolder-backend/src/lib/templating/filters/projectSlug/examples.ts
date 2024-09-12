@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export {
-  type CreatedTemplateGlobal,
-  type CreatedTemplateGlobalFunction,
-  type CreatedTemplateGlobalValue,
-  type SchemaCompliantTemplateGlobalFunction,
-  type TemplateGlobal,
-  type TemplateGlobalFunction,
-  type TemplateGlobalFunctionExample,
-  type TemplateGlobalFunctionSchema,
-} from './types';
-
-export { createTemplateGlobal } from './createTemplateGlobal';
+export default [
+  {
+    example: `- id: log
+name: Project Slug
+action: debug:logπ
+input:
+extra: \${{ parameters.repoUrl | projectSlug }}
+`,
+    notes: `- **Input**: \`github.com?repo=backstage&owner=backstage\`
+- **Output**: backstage/backstage
+`,
+  },
+];

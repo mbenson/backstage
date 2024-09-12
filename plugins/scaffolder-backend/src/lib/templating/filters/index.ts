@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export {
-  type CreatedTemplateGlobal,
-  type CreatedTemplateGlobalFunction,
-  type CreatedTemplateGlobalValue,
-  type SchemaCompliantTemplateGlobalFunction,
-  type TemplateGlobal,
-  type TemplateGlobalFunction,
-  type TemplateGlobalFunctionExample,
-  type TemplateGlobalFunctionSchema,
-} from './types';
+import { ScmIntegrations } from '@backstage/integration';
+import parseRepoUrl from './parseRepoUrl';
+import parseEntityRef from './parseEntityRef';
+import pick from './pick';
+import projectSlug from './projectSlug';
+import { CreatedTemplateFilter } from '@backstage/plugin-scaffolder-node';
 
-export { createTemplateGlobal } from './createTemplateGlobal';
+export default (options: { integrations: ScmIntegrations }) =>
+  [
+    parseRepoUrl(options.integrations),
+    parseEntityRef,
+    pick,
+    projectSlug(options.integrations),
+  ] as CreatedTemplateFilter<any, any>[];

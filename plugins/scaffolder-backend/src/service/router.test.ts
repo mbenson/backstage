@@ -38,13 +38,14 @@ import {
 } from '@backstage/catalog-model';
 import { createRouter, DatabaseTaskStore } from '../index';
 import {
-  createTemplateGlobalFunction,
-  createTemplateGlobalValue,
+  createTemplateGlobal,
   CreatedTemplateFilter,
   CreatedTemplateGlobal,
   TaskBroker,
   TemplateFilter,
   TemplateGlobal,
+  TemplateFilterSchema,
+  TemplateGlobalFunctionSchema,
 } from '@backstage/plugin-scaffolder-node';
 import { StorageTaskBroker } from '../scaffolder/tasks/StorageTaskBroker';
 import {
@@ -66,8 +67,7 @@ import {
   templateGlobalValueMetadata,
 } from '../util/templating';
 import { createTemplateFilter } from '@backstage/plugin-scaffolder-node';
-import { createBuiltInTemplateFilters } from '../lib/templating/filters';
-import { z } from 'zod';
+import createBuiltInTemplateFilters from '../lib/templating/filters';
 
 const mockAccess = jest.fn();
 
@@ -122,94 +122,36 @@ describe.each([
       createTemplateFilter({
         id: 'foo',
         schema: {
-          input: {
-            type: 'any',
-            description: 'a value',
-          },
-          output: {
-            type: 'any',
-            description: 'same value',
-          },
-        },
-        impl: (s: any) => s,
+          input: z => z.any().describe('a value'),
+          output: z => z.any().describe('same value'),
+        } as TemplateFilterSchema,
+        filter: (s: any) => s,
       }),
       createTemplateFilter({
         id: 'bar',
-        impl: (bar: any) => !!bar,
+        filter: (bar: any) => !!bar,
       }),
       createTemplateFilter({
         id: 'baz',
         description: 'append the argument to the incoming value',
         schema: {
-          input: {
-            type: 'string',
-          },
-          arguments: [
-            {
-              type: 'string',
-              title: 'suffix',
-              description: 'value to append to input',
-            },
-          ],
-          output: {
-            type: 'string',
-            description: 'input+suffix',
-          },
-        },
-        impl: (what: string, ever: string) => what + ever,
+          input: z => z.string(),
+          arguments: z => z.string().describe('value to append to input'),
+          output: z => z.string().describe('input+suffix'),
+        } as TemplateFilterSchema,
+        filter: (what: string, ever: string) => what + ever,
       }),
       createTemplateFilter({
         id: 'blah',
         schema: {
-          input: {
-            type: 'number',
-          },
-          arguments: [
-            {
-              type: 'number',
-              description: 'factor by which to multiply input',
-            },
-            {
-              type: 'number',
-              description: 'addend by which to increase input * factor',
-            },
-          ],
-        },
-        impl: (base: number, factor: number, addend: number) =>
-          base * factor + addend,
-      }),
-      createTemplateFilter({
-        id: 'zfoo',
-        schema: {
-          input: z.any().describe('a value'),
-          output: z.any().describe('same value'),
-        },
-        impl: (s: any) => s,
-      }),
-      createTemplateFilter({
-        id: 'zbar',
-        impl: (bar: any) => !!bar,
-      }),
-      createTemplateFilter({
-        id: 'zbaz',
-        description: 'append the argument to the incoming value',
-        schema: {
-          input: z.string(),
-          arguments: [z.string().describe('value to append to input')],
-          output: z.string().describe('input+suffix'),
-        },
-        impl: (what: string, ever: string) => what + ever,
-      }),
-      createTemplateFilter({
-        id: 'zblah',
-        schema: {
-          input: z.number(),
-          arguments: [
-            z.number().describe('factor by which to multiply input'),
-            z.number().describe('addend by which to increase input * factor'),
-          ],
-        },
-        impl: (base: number, factor: number, addend: number) =>
+          input: z => z.number(),
+          arguments: z =>
+            z.tuple([
+              z.number().describe('factor by which to multiply input'),
+              z.number().describe('addend by which to increase input * factor'),
+            ]),
+        } as TemplateFilterSchema,
+        filter: (base: number, factor: number, addend: number) =>
           base * factor + addend,
       }),
     ] as CreatedTemplateFilter[],
@@ -224,30 +166,21 @@ describe.each([
   {
     desc: 'created template globals',
     additionalTemplateGlobals: [
-      createTemplateGlobalValue({
+      createTemplateGlobal({
         id: 'nul',
         description: 'null value',
         value: null,
       }),
-      createTemplateGlobalFunction({
+      createTemplateGlobal({
         id: 'nop',
         description: 'nop function',
         schema: {
-          arguments: [{ title: 'input' }],
-          output: { title: 'output' },
-        },
+          arguments: z => z.any().describe('input'),
+          output: z => z.any().describe('output'),
+        } as TemplateGlobalFunctionSchema,
         fn: (x: any) => x,
       }),
-      createTemplateGlobalFunction({
-        id: 'znop',
-        description: 'nop function',
-        schema: {
-          arguments: [z.any().describe('input')],
-          output: z.any().describe('output'),
-        },
-        fn: (x: any) => x,
-      }),
-    ] as CreatedTemplateGlobal<any>[],
+    ] as CreatedTemplateGlobal[],
   },
 ])(
   'createRouter, $desc',
@@ -424,45 +357,28 @@ describe.each([
         });
       });
 
-      describe('GET /v2/template-filters/*', () => {
-        it('lists built-in template filters', async () => {
+      describe('GET /v2/template-extensions', () => {
+        it('lists template filters and globals', async () => {
           const response = await request(app)
-            .get('/v2/template-filters/built-in')
+            .get('/v2/template-extensions')
             .send();
           expect(response.status).toEqual(200);
           const integrations = ScmIntegrations.fromConfig(config);
-          expect(response.body).toMatchObject(
-            templateFilterMetadata(
-              createBuiltInTemplateFilters({ integrations }),
-            ),
-          );
-        });
-        it('lists additional template filters', async () => {
-          const response = await request(app)
-            .get('/v2/template-filters/additional')
-            .send();
-          const m = templateFilterMetadata(additionalTemplateFilters);
-          expect(response.status).toEqual(Object.keys(m).length ? 200 : 204);
-          expect(response.body).toMatchObject(m);
-        });
-      });
-      describe('GET /v2/template-global/*', () => {
-        it('lists template global functions', async () => {
-          const response = await request(app)
-            .get('/v2/template-global/functions')
-            .send();
-          const m = templateGlobalFunctionMetadata(additionalTemplateGlobals);
-          expect(response.status).toEqual(Object.keys(m).length ? 200 : 204);
-          expect(response.body).toMatchObject(m);
-        });
-        it('lists template global values', async () => {
-          const response = await request(app)
-            .get('/v2/template-global/values')
-            .send();
-          const m = templateGlobalValueMetadata(additionalTemplateGlobals);
-          const expectedStatus = Object.keys(m).length ? 200 : 204;
-          expect(response.status).toEqual(expectedStatus);
-          expect(response.body).toMatchObject(m);
+
+          expect(response.body).toMatchObject({
+            filters: {
+              ...templateFilterMetadata(
+                createBuiltInTemplateFilters({ integrations }),
+              ),
+              ...templateFilterMetadata(additionalTemplateFilters),
+            },
+            globals: {
+              functions: templateGlobalFunctionMetadata(
+                additionalTemplateGlobals,
+              ),
+              values: templateGlobalValueMetadata(additionalTemplateGlobals),
+            },
+          });
         });
       });
 

@@ -483,7 +483,7 @@ export interface RouterOptions {
   // (undocumented)
   additionalTemplateGlobals?:
     | Record<string, TemplateGlobal_2>
-    | CreatedTemplateGlobal<any>[];
+    | CreatedTemplateGlobal[];
   // (undocumented)
   additionalWorkspaceProviders?: Record<string, WorkspaceProvider>;
   // (undocumented)

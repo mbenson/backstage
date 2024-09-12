@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 import { JsonValue } from '@backstage/types';
-import { Schema } from 'jsonschema';
+import { z } from 'zod';
 
 /** @public */
-export type TemplateFilter = (...args: JsonValue[]) => JsonValue | undefined;
+export type TemplateFilter = (
+  arg: JsonValue,
+  ...rest: JsonValue[]
+) => JsonValue | undefined;
 
 /** @public */
 export type TemplateFilterSchema = {
-  input?: Schema;
-  arguments?: Schema[];
-  output?: Schema;
+  [K in 'input' | 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
 };
 
 /** @public */
@@ -34,18 +35,38 @@ export type TemplateFilterExample = {
 };
 
 /** @public */
-export type TemplateFilterMetadata = {
-  description?: string;
-  schema?: TemplateFilterSchema;
-  examples?: TemplateFilterExample[];
-};
+export type TemplateFilterFunction<T extends TemplateFilterSchema> =
+  z.ZodFunction<
+    z.ZodTuple<
+      [
+        T['input'] extends (zImpl: typeof z) => z.ZodType
+          ? ReturnType<T['input']>
+          : z.ZodAny,
+        ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
+          ? Items
+          : [ReturnType<NonNullable<T['arguments']>>]),
+      ]
+    >,
+    T['output'] extends (zImpl: typeof z) => z.ZodType
+      ? ReturnType<T['output']>
+      : z.ZodUnknown
+  >;
 
 /** @public */
 export type CreatedTemplateFilter<
-  TFilterInput extends JsonValue = JsonValue,
-  TFilterArguments extends JsonValue[] = JsonValue[],
-  TFilterOutput extends JsonValue | undefined = JsonValue,
+  S extends TemplateFilterSchema | undefined = undefined,
+  F extends S extends TemplateFilterSchema
+    ? TemplateFilterFunction<S>
+    : (
+        arg: JsonValue,
+        ...rest: JsonValue[]
+      ) => JsonValue | undefined = S extends TemplateFilterSchema
+    ? TemplateFilterFunction<S>
+    : (arg: JsonValue, ...rest: JsonValue[]) => JsonValue | undefined,
 > = {
   id: string;
-  impl: (...args: [TFilterInput, ...TFilterArguments]) => TFilterOutput;
-} & TemplateFilterMetadata;
+  description?: string;
+  examples?: TemplateFilterExample[];
+  schema?: S;
+  filter: F;
+};

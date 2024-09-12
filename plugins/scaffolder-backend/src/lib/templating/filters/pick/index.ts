@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export {
-  type CreatedTemplateGlobal,
-  type CreatedTemplateGlobalFunction,
-  type CreatedTemplateGlobalValue,
-  type SchemaCompliantTemplateGlobalFunction,
-  type TemplateGlobal,
-  type TemplateGlobalFunction,
-  type TemplateGlobalFunctionExample,
-  type TemplateGlobalFunctionSchema,
-} from './types';
+import { createTemplateFilter } from '@backstage/plugin-scaffolder-node';
+import schema from './schema';
+import examples from './examples';
+import { get } from 'lodash';
 
-export { createTemplateGlobal } from './createTemplateGlobal';
+export default createTemplateFilter({
+  id: 'pick',
+  description:
+    'Selects a specific property (kind, namespace, name) from an object.',
+  schema,
+  examples,
+  filter: (obj: any, key: string) => get(obj, key),
+});

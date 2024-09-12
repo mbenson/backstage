@@ -79,14 +79,8 @@ export const editRouteRef = createSubRouteRef({
   path: '/edit',
 });
 
-export const templateFiltersRouteRef = createSubRouteRef({
-  id: 'scaffolder/template-filters',
+export const templateExtensionsRouteRef = createSubRouteRef({
+  id: 'scaffolder/template-extensions',
   parent: rootRouteRef,
-  path: '/template-filters',
-});
-
-export const templateGlobalsRouteRef = createSubRouteRef({
-  id: 'scaffolder/template-globals',
-  parent: rootRouteRef,
-  path: '/template-globals',
+  path: '/template-extensions',
 });

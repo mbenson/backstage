@@ -45,11 +45,11 @@ export type ScaffolderTask = {
 };
 
 /**
- * A single example
+ * A single templating example
  *
  * @public
  */
-export type Example = {
+export type TemplatingExample = {
   description?: string;
   example: string;
   notes?: string;
@@ -59,8 +59,9 @@ export type Example = {
  * A single action example
  *
  * @public
+ * @deprecated in favor of TemplatingExample
  */
-export type ActionExample = Example;
+export type ActionExample = TemplatingExample;
 
 /**
  * The response shape for a single action in the `listActions` call to the `scaffolder-backend`
@@ -85,7 +86,7 @@ export type Action = {
 export type ListActionsResponse = Array<Action>;
 
 /**
- * The response shape for a single filter in the `list*TemplateFilters` call to the `scaffolder-backend`
+ * The response shape for a single filter in the `listTemplateExtensions` call to the `scaffolder-backend`
  *
  * @public
  */
@@ -96,18 +97,11 @@ export type TemplateFilter = {
     arguments?: JSONSchema7[];
     output?: JSONSchema7;
   };
-  examples?: Example[];
+  examples?: TemplatingExample[];
 };
 
 /**
- * The response shape for the `list*TemplateFilters` call to the `scaffolder-backend`
- *
- * @public
- */
-export type ListTemplateFiltersResponse = Record<string, TemplateFilter>;
-
-/**
- * The response shape for a single global function in the `listTemplateGlobalFunctions` call to the `scaffolder-backend`
+ * The response shape for a single global function in the `listTemplateExtensions` call to the `scaffolder-backend`
  *
  * @public
  */
@@ -117,21 +111,11 @@ export type TemplateGlobalFunction = {
     arguments?: JSONSchema7[];
     output?: JSONSchema7;
   };
-  examples?: Example[];
+  examples?: TemplatingExample[];
 };
 
 /**
- * The response shape for the `listTemplateGlobalFunctions` call to the `scaffolder-backend`
- *
- * @public
- */
-export type ListTemplateGlobalFunctionsResponse = Record<
-  string,
-  TemplateGlobalFunction
->;
-
-/**
- * The response shape for a single global value in the `listTemplateGlobalValues` call to the `scaffolder-backend`
+ * The response shape for a single global value in the `listTemplateExtensions` call to the `scaffolder-backend`
  *
  * @public
  */
@@ -139,15 +123,19 @@ export type TemplateGlobalValue = {
   description?: string;
   value: JsonValue;
 };
+
 /**
- * The response shape for the `listTemplateGlobalValues` call to the `scaffolder-backend`
+ * The response shape for the `listTemplateExtensions` call to the `scaffolder-backend`
  *
  * @public
  */
-export type ListTemplateGlobalValuesResponse = Record<
-  string,
-  TemplateGlobalValue
->;
+export type ListTemplateExtensionsResponse = {
+  filters: Record<string, TemplateFilter>;
+  globals: {
+    functions: Record<string, TemplateGlobalFunction>;
+    values: Record<string, TemplateGlobalValue>;
+  };
+};
 
 /** @public */
 export type ScaffolderOutputLink = {
@@ -300,24 +288,9 @@ export interface ScaffolderApi {
   listActions(): Promise<ListActionsResponse>;
 
   /**
-   * Returns a record of built-in template filters.
+   * Returns a structure describing the available templating extensions.
    */
-  listBuiltInTemplateFilters(): Promise<ListTemplateFiltersResponse>;
-
-  /**
-   * Returns a record of additional template filters.
-   */
-  listAdditionalTemplateFilters(): Promise<ListTemplateFiltersResponse>;
-
-  /**
-   * Returns a record of global template functions.
-   */
-  listTemplateGlobalFunctions(): Promise<ListTemplateGlobalFunctionsResponse>;
-
-  /**
-   * Returns a record of global template values.
-   */
-  listTemplateGlobalValues(): Promise<ListTemplateGlobalValuesResponse>;
+  listTemplateExtensions(): Promise<ListTemplateExtensionsResponse>;
 
   streamLogs(options: ScaffolderStreamLogsOptions): Observable<LogEvent>;
 

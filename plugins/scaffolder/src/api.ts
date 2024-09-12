@@ -24,9 +24,7 @@ import { ResponseError } from '@backstage/errors';
 import { ScmIntegrationRegistry } from '@backstage/integration';
 import {
   ListActionsResponse,
-  ListTemplateFiltersResponse,
-  ListTemplateGlobalFunctionsResponse,
-  ListTemplateGlobalValuesResponse,
+  ListTemplateExtensionsResponse,
   LogEvent,
   ScaffolderApi,
   ScaffolderDryRunOptions,
@@ -326,58 +324,13 @@ export class ScaffolderClient implements ScaffolderApi {
     return await response.json();
   }
 
-  async listBuiltInTemplateFilters(): Promise<ListTemplateFiltersResponse> {
+  async listTemplateExtensions(): Promise<ListTemplateExtensionsResponse> {
     const baseUrl = await this.discoveryApi.getBaseUrl('scaffolder');
     const response = await this.fetchApi.fetch(
-      `${baseUrl}/v2/template-filters/built-in`,
+      `${baseUrl}/v2/template-extensions`,
     );
     if (!response.ok) {
       throw ResponseError.fromResponse(response);
-    }
-    if (response.status === 204) {
-      return {};
-    }
-    return response.json();
-  }
-
-  async listAdditionalTemplateFilters(): Promise<ListTemplateFiltersResponse> {
-    const baseUrl = await this.discoveryApi.getBaseUrl('scaffolder');
-    const response = await this.fetchApi.fetch(
-      `${baseUrl}/v2/template-filters/additional`,
-    );
-    if (!response.ok) {
-      throw ResponseError.fromResponse(response);
-    }
-    if (response.status === 204) {
-      return {};
-    }
-    return response.json();
-  }
-
-  async listTemplateGlobalFunctions(): Promise<ListTemplateGlobalFunctionsResponse> {
-    const baseUrl = await this.discoveryApi.getBaseUrl('scaffolder');
-    const response = await this.fetchApi.fetch(
-      `${baseUrl}/v2/template-global/functions`,
-    );
-    if (!response.ok) {
-      throw ResponseError.fromResponse(response);
-    }
-    if (response.status === 204) {
-      return {};
-    }
-    return response.json();
-  }
-
-  async listTemplateGlobalValues(): Promise<ListTemplateGlobalValuesResponse> {
-    const baseUrl = await this.discoveryApi.getBaseUrl('scaffolder');
-    const response = await this.fetchApi.fetch(
-      `${baseUrl}/v2/template-global/values`,
-    );
-    if (!response.ok) {
-      throw ResponseError.fromResponse(response);
-    }
-    if (response.status === 204) {
-      return {};
     }
     return response.json();
   }

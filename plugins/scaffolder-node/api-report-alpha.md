@@ -75,7 +75,7 @@ export interface ScaffolderTemplatingExtensionPoint {
   ): void;
   // (undocumented)
   addTemplateGlobals(
-    globals: Record<string, TemplateGlobal> | CreatedTemplateGlobal<any>[],
+    globals: Record<string, TemplateGlobal> | CreatedTemplateGlobal[],
   ): void;
 }
 

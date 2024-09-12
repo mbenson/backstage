@@ -13,4 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { TemplateFiltersPage } from './TemplateFiltersPage';
+import { TemplateFilterSchema } from '@backstage/plugin-scaffolder-node';
+
+export default {
+  input: z =>
+    z.string().describe('repo URL as collected from repository picker'),
+  output: z =>
+    z
+      .object({
+        repo: z.string(),
+        host: z.string(),
+      })
+      .merge(
+        z
+          .object({
+            owner: z.string(),
+            organization: z.string(),
+            workspace: z.string(),
+            project: z.string(),
+          })
+          .partial(),
+      )
+      .describe('`RepoSpec`'),
+} as TemplateFilterSchema;

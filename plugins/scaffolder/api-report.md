@@ -26,9 +26,7 @@ import { JSX as JSX_2 } from 'react';
 import { LayoutOptions as LayoutOptions_2 } from '@backstage/plugin-scaffolder-react';
 import { LayoutTemplate as LayoutTemplate_2 } from '@backstage/plugin-scaffolder-react';
 import { ListActionsResponse as ListActionsResponse_2 } from '@backstage/plugin-scaffolder-react';
-import { ListTemplateFiltersResponse } from '@backstage/plugin-scaffolder-react';
-import { ListTemplateGlobalFunctionsResponse } from '@backstage/plugin-scaffolder-react';
-import { ListTemplateGlobalValuesResponse } from '@backstage/plugin-scaffolder-react';
+import { ListTemplateExtensionsResponse } from '@backstage/plugin-scaffolder-react';
 import { LogEvent as LogEvent_2 } from '@backstage/plugin-scaffolder-react';
 import { Observable } from '@backstage/types';
 import { PathParams } from '@backstage/core-plugin-api';
@@ -561,17 +559,11 @@ export class ScaffolderClient implements ScaffolderApi_2 {
   // (undocumented)
   listActions(): Promise<ListActionsResponse_2>;
   // (undocumented)
-  listAdditionalTemplateFilters(): Promise<ListTemplateFiltersResponse>;
-  // (undocumented)
-  listBuiltInTemplateFilters(): Promise<ListTemplateFiltersResponse>;
-  // (undocumented)
   listTasks(options: { filterByOwnership: 'owned' | 'all' }): Promise<{
     tasks: ScaffolderTask_2[];
   }>;
   // (undocumented)
-  listTemplateGlobalFunctions(): Promise<ListTemplateGlobalFunctionsResponse>;
-  // (undocumented)
-  listTemplateGlobalValues(): Promise<ListTemplateGlobalValuesResponse>;
+  listTemplateExtensions(): Promise<ListTemplateExtensionsResponse>;
   // (undocumented)
   scaffold(
     options: ScaffolderScaffoldOptions_2,
@@ -623,8 +615,7 @@ export const scaffolderPlugin: BackstagePlugin<
     actions: SubRouteRef<undefined>;
     listTasks: SubRouteRef<undefined>;
     edit: SubRouteRef<undefined>;
-    templateFilters: SubRouteRef<undefined>;
-    templateGlobals: SubRouteRef<undefined>;
+    templateExtensions: SubRouteRef<undefined>;
   },
   {
     registerComponent: ExternalRouteRef<undefined, true>;

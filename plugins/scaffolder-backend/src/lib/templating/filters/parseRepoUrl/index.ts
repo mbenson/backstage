@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export {
-  type CreatedTemplateGlobal,
-  type CreatedTemplateGlobalFunction,
-  type CreatedTemplateGlobalValue,
-  type SchemaCompliantTemplateGlobalFunction,
-  type TemplateGlobal,
-  type TemplateGlobalFunction,
-  type TemplateGlobalFunctionExample,
-  type TemplateGlobalFunctionSchema,
-} from './types';
+import { ScmIntegrations } from '@backstage/integration';
+import {
+  createTemplateFilter,
+  parseRepoUrl,
+} from '@backstage/plugin-scaffolder-node';
+import schema from './schema';
+import examples from './examples';
 
-export { createTemplateGlobal } from './createTemplateGlobal';
+export default (integrations: ScmIntegrations) =>
+  createTemplateFilter({
+    id: 'parseRepoUrl',
+    description:
+      'Parses a repository URL into its components, such as owner, repository name, and more.',
+    schema,
+    examples,
+    filter: (url: string) => parseRepoUrl(url, integrations),
+  });

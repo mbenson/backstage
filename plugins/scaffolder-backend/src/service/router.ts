@@ -67,7 +67,6 @@ import {
   TemplateFilter,
   TemplateGlobal,
 } from '@backstage/plugin-scaffolder-node';
-import { createBuiltInTemplateFilters } from '../lib/templating/filters';
 import {
   createBuiltinActions,
   DatabaseTaskStore,
@@ -109,6 +108,7 @@ import {
 } from '../util/templating';
 import { findTemplate, getEntityBaseUrl, getWorkingDirectory } from './helpers';
 import { scaffolderActionRules, scaffolderTemplateRules } from './rules';
+import filters from '../lib/templating/filters';
 
 /**
  *
@@ -177,7 +177,7 @@ export interface RouterOptions {
     | CreatedTemplateFilter[];
   additionalTemplateGlobals?:
     | Record<string, TemplateGlobal>
-    | CreatedTemplateGlobal<any>[];
+    | CreatedTemplateGlobal[];
   additionalWorkspaceProviders?: Record<string, WorkspaceProvider>;
   permissions?: PermissionsService;
   permissionRules?: Array<
@@ -848,42 +848,17 @@ export async function createRouter(
 
       res.status(200).json({ results });
     })
-    .get('/v2/template-filters/built-in', async (_req, res) => {
-      // omit from built in filters any overridden id:
-      const addl = templateFilterImpls(additionalTemplateFilters);
-      const builtIn = createBuiltInTemplateFilters({ integrations }).filter(
-        f => !(f.id in addl),
-      );
-
-      if (Object.keys(builtIn).length) {
-        res.status(200).json(templateFilterMetadata(builtIn));
-      } else {
-        res.status(204).end();
-      }
-    })
-    .get('/v2/template-filters/additional', async (_req, res) => {
-      const addl = templateFilterMetadata(additionalTemplateFilters);
-      if (Object.keys(addl).length) {
-        res.status(200).json(addl);
-      } else {
-        res.status(204).end();
-      }
-    })
-    .get('/v2/template-global/functions', async (_req, res) => {
-      const m = templateGlobalFunctionMetadata(additionalTemplateGlobals);
-      if (Object.keys(m ?? {}).length) {
-        res.status(200).json(m);
-      } else {
-        res.status(204).end();
-      }
-    })
-    .get('/v2/template-global/values', async (_req, res) => {
-      const m = templateGlobalValueMetadata(additionalTemplateGlobals);
-      if (Object.keys(m ?? {}).length) {
-        res.status(200).json(m);
-      } else {
-        res.status(204).end();
-      }
+    .get('/v2/template-extensions', async (_req, res) => {
+      res.status(200).json({
+        filters: {
+          ...templateFilterMetadata(filters({ integrations })),
+          ...templateFilterMetadata(additionalTemplateFilters),
+        },
+        globals: {
+          functions: templateGlobalFunctionMetadata(additionalTemplateGlobals),
+          values: templateGlobalValueMetadata(additionalTemplateGlobals),
+        },
+      });
     });
 
   const app = express();

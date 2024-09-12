@@ -56,8 +56,8 @@ export type Action = {
   examples?: ActionExample[];
 };
 
-// @public
-export type ActionExample = Example;
+// @public @deprecated
+export type ActionExample = TemplatingExample;
 
 // @public
 export function createScaffolderFieldExtension<
@@ -89,13 +89,6 @@ export type CustomFieldValidator<TFieldReturnValue, TUiOptions = unknown> = (
     uiSchema?: FieldExtensionUiSchema<TFieldReturnValue, TUiOptions>;
   },
 ) => void | Promise<void>;
-
-// @public
-export type Example = {
-  description?: string;
-  example: string;
-  notes?: string;
-};
 
 // @public
 export type FieldExtensionComponent<_TReturnValue, _TInputProps> = () => null;
@@ -160,19 +153,13 @@ export type LayoutTemplate<T = any> = NonNullable<
 export type ListActionsResponse = Array<Action>;
 
 // @public
-export type ListTemplateFiltersResponse = Record<string, TemplateFilter>;
-
-// @public
-export type ListTemplateGlobalFunctionsResponse = Record<
-  string,
-  TemplateGlobalFunction
->;
-
-// @public
-export type ListTemplateGlobalValuesResponse = Record<
-  string,
-  TemplateGlobalValue
->;
+export type ListTemplateExtensionsResponse = {
+  filters: Record<string, TemplateFilter>;
+  globals: {
+    functions: Record<string, TemplateGlobalFunction>;
+    values: Record<string, TemplateGlobalValue>;
+  };
+};
 
 // @public
 export type LogEvent = {
@@ -228,14 +215,11 @@ export interface ScaffolderApi {
     templateRef: string,
   ): Promise<TemplateParameterSchema>;
   listActions(): Promise<ListActionsResponse>;
-  listAdditionalTemplateFilters(): Promise<ListTemplateFiltersResponse>;
-  listBuiltInTemplateFilters(): Promise<ListTemplateFiltersResponse>;
   // (undocumented)
   listTasks?(options: { filterByOwnership: 'owned' | 'all' }): Promise<{
     tasks: ScaffolderTask[];
   }>;
-  listTemplateGlobalFunctions(): Promise<ListTemplateGlobalFunctionsResponse>;
-  listTemplateGlobalValues(): Promise<ListTemplateGlobalValuesResponse>;
+  listTemplateExtensions(): Promise<ListTemplateExtensionsResponse>;
   scaffold(
     options: ScaffolderScaffoldOptions,
   ): Promise<ScaffolderScaffoldResponse>;
@@ -523,7 +507,7 @@ export type TemplateFilter = {
     arguments?: JSONSchema7[];
     output?: JSONSchema7;
   };
-  examples?: Example[];
+  examples?: TemplatingExample[];
 };
 
 // @public
@@ -533,7 +517,7 @@ export type TemplateGlobalFunction = {
     arguments?: JSONSchema7[];
     output?: JSONSchema7;
   };
-  examples?: Example[];
+  examples?: TemplatingExample[];
 };
 
 // @public
@@ -558,6 +542,13 @@ export type TemplateParameterSchema = {
     description?: string;
     schema: JsonObject;
   }>;
+};
+
+// @public
+export type TemplatingExample = {
+  description?: string;
+  example: string;
+  notes?: string;
 };
 
 // @public

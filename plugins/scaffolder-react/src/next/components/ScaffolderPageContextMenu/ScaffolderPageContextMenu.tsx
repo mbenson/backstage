@@ -26,7 +26,7 @@ import Description from '@material-ui/icons/Description';
 import Edit from '@material-ui/icons/Edit';
 import List from '@material-ui/icons/List';
 import MoreVert from '@material-ui/icons/MoreVert';
-import React, { ReactNode, useState } from 'react';
+import React, { useState } from 'react';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -42,9 +42,7 @@ export type ScaffolderPageContextMenuProps = {
   onActionsClicked?: () => void;
   onTasksClicked?: () => void;
   onCreateClicked?: () => void;
-  onTemplateFiltersClicked?: () => void;
-  onTemplateGlobalsClicked?: () => void;
-  additionalItems?: ReactNode[];
+  onTemplateExtensionsClicked?: () => void;
 };
 
 /**
@@ -58,20 +56,12 @@ export function ScaffolderPageContextMenu(
     onActionsClicked,
     onTasksClicked,
     onCreateClicked,
-    onTemplateFiltersClicked,
-    onTemplateGlobalsClicked,
+    onTemplateExtensionsClicked,
   } = props;
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
 
-  if (
-    !(
-      onEditorClicked ||
-      onActionsClicked ||
-      onTemplateFiltersClicked ||
-      onTemplateGlobalsClicked
-    )
-  ) {
+  if (!(onEditorClicked || onActionsClicked || onTemplateExtensionsClicked)) {
     return null;
   }
   const onOpen = (event: React.SyntheticEvent<HTMLButtonElement>) => {
@@ -123,20 +113,12 @@ export function ScaffolderPageContextMenu(
               <ListItemText primary="Template Editor" />
             </MenuItem>
           )}
-          {onTemplateFiltersClicked && (
-            <MenuItem onClick={onTemplateFiltersClicked}>
+          {onTemplateExtensionsClicked && (
+            <MenuItem onClick={onTemplateExtensionsClicked}>
               <ListItemIcon>
                 <Description fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="Template Filters" />
-            </MenuItem>
-          )}
-          {onTemplateGlobalsClicked && (
-            <MenuItem onClick={onTemplateGlobalsClicked}>
-              <ListItemIcon>
-                <Description fontSize="small" />
-              </ListItemIcon>
-              <ListItemText primary="Template Globals" />
+              <ListItemText primary="Template Extensions" />
             </MenuItem>
           )}
           {onActionsClicked && (
@@ -155,7 +137,6 @@ export function ScaffolderPageContextMenu(
               <ListItemText primary="Task List" />
             </MenuItem>
           )}
-          {props.additionalItems}
         </MenuList>
       </Popover>
     </>

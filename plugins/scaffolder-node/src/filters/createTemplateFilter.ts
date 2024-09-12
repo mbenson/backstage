@@ -14,89 +14,16 @@
  * limitations under the License.
  */
 
-import { JsonValue } from '@backstage/types';
-import { Schema } from 'jsonschema';
-import { mapValues, pickBy } from 'lodash';
-import { z } from 'zod';
-import zodToJsonSchema from 'zod-to-json-schema';
-import { CreatedTemplateFilter, TemplateFilterExample } from './types';
-
-const jsonSchema = (schemaSpec: Schema | z.ZodType) => {
-  return schemaSpec instanceof z.ZodType
-    ? (zodToJsonSchema(schemaSpec) as Schema)
-    : schemaSpec;
-};
-
-/** @public */
-export type TemplateFilterOptions<
-  TInputSchema extends Schema | z.ZodType = {},
-  TArgumentsSchema extends (Schema | z.ZodType)[] = [],
-  TOutputSchema extends Schema | z.ZodType = {},
-> = {
-  id: string;
-  description?: string;
-  examples?: TemplateFilterExample[];
-  schema?: {
-    input?: TInputSchema;
-    arguments?: TArgumentsSchema;
-    output?: TOutputSchema;
-  };
-};
+import { CreatedTemplateFilter } from './types';
 
 /**
  * This function is used to create new template filters in type-safe manner.
- * Will convert zod schemas to json schemas for use throughout the system.
  * @public
  */
 export const createTemplateFilter = <
-  TInput extends JsonValue = JsonValue,
-  TArguments extends JsonValue[] = [],
-  TOutput extends JsonValue | undefined = JsonValue,
-  TInputSchema extends Schema | z.ZodType = {},
-  TArgumentsSchema extends (Schema | z.ZodType)[] = [],
-  TOutputSchema extends Schema | z.ZodType = {},
-  TFilterInput extends JsonValue = TInputSchema extends z.ZodType<
-    any,
-    any,
-    infer IReturn
-  >
-    ? IReturn
-    : TInput,
-  TFilterArguments extends JsonValue[] = keyof TArgumentsSchema extends never
-    ? TArguments
-    : {
-        [K in keyof TArgumentsSchema]: TArgumentsSchema[K] extends z.ZodType<
-          any,
-          any,
-          infer IReturn
-        >
-          ? IReturn
-          : JsonValue;
-      },
-  TFilterOutput extends JsonValue = TOutputSchema extends z.ZodType<
-    any,
-    any,
-    infer IReturn
-  >
-    ? IReturn
-    : TOutput,
+  TF extends CreatedTemplateFilter<any, any>,
 >(
-  filter: TemplateFilterOptions<
-    TInputSchema,
-    TArgumentsSchema,
-    TOutputSchema
-  > & { impl: (...args: [TFilterInput, ...TFilterArguments]) => TFilterOutput },
-): CreatedTemplateFilter<TFilterInput, TFilterArguments, TFilterOutput> => {
-  return {
-    ...filter,
-    ...(filter.schema
-      ? {
-          schema: mapValues(pickBy(filter.schema), spec =>
-            Array.isArray(spec)
-              ? spec.map(e => jsonSchema(e))
-              : jsonSchema(spec),
-          ),
-        }
-      : {}),
-  };
+  filter: TF,
+): TF => {
+  return filter;
 };

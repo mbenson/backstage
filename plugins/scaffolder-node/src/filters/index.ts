@@ -15,13 +15,10 @@
  */
 export {
   type TemplateFilter,
+  type TemplateFilterFunction,
   type TemplateFilterSchema,
   type TemplateFilterExample,
-  type TemplateFilterMetadata,
   type CreatedTemplateFilter,
 } from './types';
 
-export {
-  createTemplateFilter,
-  type TemplateFilterOptions,
-} from './createTemplateFilter';
+export { createTemplateFilter } from './createTemplateFilter';
