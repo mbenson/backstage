@@ -360,9 +360,9 @@ export async function createRouter(
 
   const actionRegistry = new TemplateActionRegistry();
 
-  const additionalTemplate = {
-    filters: templateFilterImpls(additionalTemplateFilters),
-    globals: templateGlobals(additionalTemplateGlobals),
+  const templateExtensions = {
+    additionalTemplateFilters: templateFilterImpls(additionalTemplateFilters),
+    additionalTemplateGlobals: templateGlobals(additionalTemplateGlobals),
   };
 
   const workers: TaskWorker[] = [];
@@ -374,10 +374,9 @@ export async function createRouter(
         integrations,
         logger,
         workingDirectory,
-        additionalTemplateFilters: additionalTemplate.filters,
-        additionalTemplateGlobals: additionalTemplate.globals,
         concurrentTasksLimit,
         permissions,
+        ...templateExtensions,
       });
       workers.push(worker);
     }
@@ -390,9 +389,8 @@ export async function createRouter(
         catalogClient,
         reader,
         config,
-        additionalTemplateFilters: additionalTemplate.filters,
-        additionalTemplateGlobals: additionalTemplate.globals,
         auth,
+        ...templateExtensions,
       });
 
   actionsToRegister.forEach(action => actionRegistry.register(action));
@@ -415,9 +413,8 @@ export async function createRouter(
     integrations,
     logger,
     workingDirectory,
-    additionalTemplateFilters: additionalTemplate.filters,
-    additionalTemplateGlobals: additionalTemplate.globals,
     permissions,
+    ...templateExtensions,
   });
 
   const templateRules: TemplatePermissionRuleInput[] = Object.values(
