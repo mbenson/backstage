@@ -35,8 +35,7 @@ import {
   actionsRouteRef,
   rootRouteRef,
   scaffolderListTaskRouteRef,
-  templateFiltersRouteRef,
-  templateGlobalsRouteRef,
+  templateExtensionsRouteRef,
 } from '../../routes';
 import { useTranslationRef } from '@backstage/core-plugin-api/alpha';
 import { scaffolderTranslationRef } from '../../translation';
@@ -67,16 +66,14 @@ export function TemplateEditorPage(props: TemplateEditorPageProps) {
   const tasksLink = useRouteRef(scaffolderListTaskRouteRef);
   const createLink = useRouteRef(rootRouteRef);
   const { t } = useTranslationRef(scaffolderTranslationRef);
-  const templateFiltersLink = useRouteRef(templateFiltersRouteRef);
-  const templateGlobalsLink = useRouteRef(templateGlobalsRouteRef);
+  const templateExtensionsLink = useRouteRef(templateExtensionsRouteRef);
 
   const scaffolderPageContextMenuProps = {
     onEditorClicked: undefined,
     onActionsClicked: () => navigate(actionsLink()),
     onTasksClicked: () => navigate(tasksLink()),
     onCreateClicked: () => navigate(createLink()),
-    onTemplateFiltersClicked: () => navigate(templateFiltersLink()),
-    onTemplateGlobalsClicked: () => navigate(templateGlobalsLink()),
+    onTemplateExtensionsClicked: () => navigate(templateExtensionsLink()),
   };
 
   let content: JSX.Element | null = null;

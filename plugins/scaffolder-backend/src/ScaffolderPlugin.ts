@@ -24,10 +24,9 @@ import { catalogServiceRef } from '@backstage/plugin-catalog-node/alpha';
 import {
   CreatedTemplateFilter,
   CreatedTemplateGlobal,
+  createTemplateFilter,
   TaskBroker,
   TemplateAction,
-  TemplateFilter,
-  TemplateGlobal,
 } from '@backstage/plugin-scaffolder-node';
 import {
   AutocompleteHandler,
@@ -52,6 +51,7 @@ import {
 } from './scaffolder';
 import { createRouter } from './service/router';
 import { templateFilterImpls, templateGlobals } from './util/templating';
+import { createTemplateGlobal } from '@backstage/plugin-scaffolder-node';
 
 /**
  * Scaffolder plugin
@@ -78,30 +78,35 @@ export const scaffolderPlugin = createBackendPlugin({
       },
     });
 
-    let additionalTemplateFilters:
-      | Record<string, TemplateFilter>
-      | CreatedTemplateFilter[]
-      | undefined;
-
-    let additionalTemplateGlobals:
-      | Record<string, TemplateGlobal>
-      | CreatedTemplateGlobal<any>[]
-      | undefined;
+    const additionalTemplateFilters: CreatedTemplateFilter[] = [];
+    const additionalTemplateGlobals: CreatedTemplateGlobal[] = [];
 
     env.registerExtensionPoint(scaffolderTemplatingExtensionPoint, {
       addTemplateFilters(newFilters) {
-        if (Array.isArray(newFilters)) {
-          additionalTemplateFilters = [...newFilters];
-        } else {
-          additionalTemplateFilters = Object.assign({}, newFilters);
-        }
+        additionalTemplateFilters.push(
+          ...(Array.isArray(newFilters)
+            ? newFilters
+            : Object.entries(newFilters).map(([id, filter]) =>
+                createTemplateFilter({
+                  id,
+                  filter,
+                }),
+              )),
+        );
       },
       addTemplateGlobals(newGlobals) {
-        if (Array.isArray(newGlobals)) {
-          additionalTemplateGlobals = [...newGlobals];
-        } else {
-          additionalTemplateGlobals = Object.assign({}, newGlobals);
-        }
+        additionalTemplateGlobals.push(
+          ...(Array.isArray(newGlobals)
+            ? newGlobals
+            : Object.entries(newGlobals).map(([id, global]) =>
+                createTemplateGlobal({
+                  id,
+                  ...(typeof global === 'function'
+                    ? { fn: global }
+                    : { value: global }),
+                }),
+              )),
+        );
       },
     });
 

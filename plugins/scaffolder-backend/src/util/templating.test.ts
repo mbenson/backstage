@@ -25,6 +25,7 @@ import {
   templateGlobals,
   templateGlobalValueMetadata,
 } from './templating';
+import { JsonValue } from '@backstage/types';
 
 describe('templating utilities', () => {
   describe('api filters', () => {
@@ -32,11 +33,11 @@ describe('templating utilities', () => {
       createTemplateFilter({
         id: 'nop',
         description: 'nop',
-        impl: x => x,
+        filter: (x: JsonValue) => x,
       }),
       createTemplateFilter({
         id: 'nul',
-        impl: _ => null,
+        filter: (_: JsonValue) => null,
       }),
     ];
     it('extracts filter implementations', () => {
@@ -76,7 +77,7 @@ describe('templating utilities', () => {
     });
   });
 
-  const documentedGlobals: CreatedTemplateGlobal<any>[] = [
+  const documentedGlobals: CreatedTemplateGlobal[] = [
     {
       id: 'foo',
       description: 'foo something',

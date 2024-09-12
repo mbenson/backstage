@@ -186,68 +186,36 @@ export const scaffolderTranslationRef = createTranslationRef({
       },
       undefined: 'No schema defined',
     },
-    templateFilters: {
-      title: 'Template filters',
-      pageTitle: 'Template filters',
-      subtitle: 'This is the collection of available template filters',
-      content: {
-        builtIn: {
-          heading: 'Built-in',
-          emptyState: {
-            title: 'No information to display',
-            description:
-              'There are no built-in template filters available or there was an issue communicating with the backend.',
-          },
-          metadataAbsent: 'Filter metadata unavailable',
-          schema: {
-            input: 'Input',
-            arguments: 'Arguments',
-            output: 'Output',
-          },
-          examples: 'Examples',
-        },
-        additional: {
-          heading: 'Additional',
-          emptyState: {
-            title: 'No information to display',
-            description:
-              'There are no additional template filters available or there was an issue communicating with the backend.',
-          },
-          metadataAbsent: 'Filter metadata unavailable',
-          schema: {
-            input: 'Input',
-            arguments: 'Arguments',
-            output: 'Output',
-          },
-          examples: 'Examples',
-        },
+    templateExtensions: {
+      title: 'Template extensions',
+      pageTitle: 'Template extensions',
+      subtitle: 'This is the collection of available template extensions',
+      emptyState: {
+        title: 'No information to display',
+        description:
+          'There are no template extensions available or there was an issue communicating with the backend.',
       },
-    },
-    templateGlobals: {
-      title: 'Template globals',
-      pageTitle: 'Template globals',
-      subtitle: 'This is the collection of available template globals',
-      content: {
-        fn: {
-          heading: 'Functions',
-          emptyState: {
-            title: 'No information to display',
-            description:
-              'There are no global template functions available or there was an issue communicating with the backend.',
-          },
+      filters: {
+        title: 'Template filters',
+        metadataAbsent: 'Filter metadata unavailable',
+        schema: {
+          input: 'Input',
+          arguments: 'Arguments',
+          output: 'Output',
+        },
+        examples: 'Examples',
+      },
+      globals: {
+        functions: {
+          title: 'Template global functions',
           schema: {
             arguments: 'Arguments',
             output: 'Output',
           },
           examples: 'Examples',
         },
-        value: {
-          heading: 'Values',
-          emptyState: {
-            title: 'No information to display',
-            description:
-              'There are no global template values available or there was an issue communicating with the backend.',
-          },
+        values: {
+          title: 'Template global values',
         },
       },
     },

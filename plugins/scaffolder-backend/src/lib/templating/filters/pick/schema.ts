@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export {
-  type CreatedTemplateGlobal,
-  type CreatedTemplateGlobalFunction,
-  type CreatedTemplateGlobalValue,
-  type SchemaCompliantTemplateGlobalFunction,
-  type TemplateGlobal,
-  type TemplateGlobalFunction,
-  type TemplateGlobalFunctionExample,
-  type TemplateGlobalFunctionSchema,
-} from './types';
+import { TemplateFilterSchema } from '@backstage/plugin-scaffolder-node';
 
-export { createTemplateGlobal } from './createTemplateGlobal';
+export default {
+  input: z => z.any(),
+  arguments: z => z.string().describe('Property'),
+  output: z => z.any().describe('Selected property'),
+} as TemplateFilterSchema;

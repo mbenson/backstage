@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export {
-  type CreatedTemplateGlobal,
-  type CreatedTemplateGlobalFunction,
-  type CreatedTemplateGlobalValue,
-  type SchemaCompliantTemplateGlobalFunction,
-  type TemplateGlobal,
-  type TemplateGlobalFunction,
-  type TemplateGlobalFunctionExample,
-  type TemplateGlobalFunctionSchema,
-} from './types';
+import { parseEntityRef } from '@backstage/catalog-model';
+import { createTemplateFilter } from '@backstage/plugin-scaffolder-node';
+import schema from './schema';
+import examples from './examples';
 
-export { createTemplateGlobal } from './createTemplateGlobal';
+export default createTemplateFilter({
+  id: 'parseEntityRef',
+  description:
+    'Extracts the parts of an entity reference, such as the kind, namespace, and name.',
+  schema,
+  examples,
+  filter: (
+    ref: string,
+    context?: Parameters<typeof parseEntityRef>[1],
+  ): ReturnType<typeof parseEntityRef> => parseEntityRef(ref, context),
+});

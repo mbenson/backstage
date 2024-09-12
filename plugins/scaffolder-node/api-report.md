@@ -148,24 +148,53 @@ export function createBranch(options: {
 
 // @public (undocumented)
 export type CreatedTemplateFilter<
-  TFilterInput extends JsonValue = JsonValue,
-  TFilterArguments extends JsonValue[] = JsonValue[],
-  TFilterOutput extends JsonValue | undefined = JsonValue,
+  S extends TemplateFilterSchema | undefined = undefined,
+  F extends S extends TemplateFilterSchema
+    ? TemplateFilterFunction<S>
+    : (
+        arg: JsonValue,
+        ...rest: JsonValue[]
+      ) => JsonValue | undefined = S extends TemplateFilterSchema
+    ? TemplateFilterFunction<S>
+    : (arg: JsonValue, ...rest: JsonValue[]) => JsonValue | undefined,
 > = {
   id: string;
-  impl: (...args: [TFilterInput, ...TFilterArguments]) => TFilterOutput;
-} & TemplateFilterMetadata;
+  description?: string;
+  examples?: TemplateFilterExample[];
+  schema?: S;
+  filter: F;
+};
 
 // @public (undocumented)
-export type CreatedTemplateGlobal<
-  T extends TemplateGlobalFunction | JsonValue,
+export type CreatedTemplateGlobal =
+  | CreatedTemplateGlobalValue<any>
+  | CreatedTemplateGlobalFunction<any, any>;
+
+// @public (undocumented)
+export type CreatedTemplateGlobalFunction<
+  S extends TemplateGlobalFunctionSchema | undefined = undefined,
+  F extends S extends TemplateGlobalFunctionSchema
+    ? SchemaCompliantTemplateGlobalFunction<S>
+    : (
+        arg: JsonValue,
+        ...rest: JsonValue[]
+      ) => JsonValue = S extends TemplateGlobalFunctionSchema
+    ? SchemaCompliantTemplateGlobalFunction<S>
+    : (...args: JsonValue[]) => JsonValue,
 > = {
   id: string;
-} & (T extends JsonValue
-  ? TemplateGlobalValue<T>
-  : TemplateGlobalFunctionMetadata & {
-      fn: T;
-    });
+  description?: string;
+  examples?: TemplateGlobalFunctionExample[];
+  schema?: S;
+  fn: F;
+};
+
+// @public (undocumented)
+export type CreatedTemplateGlobalValue<T extends JsonValue = JsonValue> = {
+  id: string;
+  value: T;
+  description?: string;
+};
 
 // @public
 export const createTemplateAction: <
@@ -197,82 +226,18 @@ export const createTemplateAction: <
 ) => TemplateAction<TActionInput, TActionOutput>;
 
 // @public
-export const createTemplateFilter: <
-  TInput extends JsonValue = JsonValue,
-  TArguments extends JsonValue[] = [],
-  TOutput extends JsonValue | undefined = JsonValue,
-  TInputSchema extends z.ZodType<any, z.ZodTypeDef, any> | Schema = {},
-  TArgumentsSchema extends (z.ZodType<any, z.ZodTypeDef, any> | Schema)[] = [],
-  TOutputSchema extends z.ZodType<any, z.ZodTypeDef, any> | Schema = {},
-  TFilterInput extends JsonValue = TInputSchema extends z.ZodType<
-    any,
-    any,
-    infer IReturn
-  >
-    ? IReturn
-    : TInput,
-  TFilterArguments extends JsonValue[] = keyof TArgumentsSchema extends never
-    ? TArguments
-    : {
-        [K in keyof TArgumentsSchema]: TArgumentsSchema[K] extends z.ZodType<
-          any,
-          any,
-          infer IReturn_1
-        >
-          ? IReturn_1
-          : JsonValue;
-      },
-  TFilterOutput extends JsonValue = TOutputSchema extends z.ZodType<
-    any,
-    any,
-    infer IReturn_2
-  >
-    ? IReturn_2
-    : TOutput,
->(
-  filter: TemplateFilterOptions<
-    TInputSchema,
-    TArgumentsSchema,
-    TOutputSchema
-  > & {
-    impl: (args_0: TFilterInput, ...args_1: TFilterArguments) => TFilterOutput;
-  },
-) => CreatedTemplateFilter<TFilterInput, TFilterArguments, TFilterOutput>;
+export const createTemplateFilter: <TF extends CreatedTemplateFilter<any, any>>(
+  filter: TF,
+) => TF;
 
 // @public
-export const createTemplateGlobalFunction: <
-  TArguments extends JsonValue[] = [],
-  TOutput extends JsonValue | undefined = JsonValue,
-  TArgumentsSchema extends (z.ZodType<any, z.ZodTypeDef, any> | Schema)[] = [],
-  TOutputSchema extends z.ZodType<any, z.ZodTypeDef, any> | Schema = {},
-  TFnArguments extends JsonValue[] = keyof TArgumentsSchema extends never
-    ? TArguments
-    : {
-        [K in keyof TArgumentsSchema]: TArgumentsSchema[K] extends z.ZodType<
-          any,
-          any,
-          infer IReturn
-        >
-          ? IReturn
-          : TArguments;
-      },
-  TFnOutput extends JsonValue = TOutputSchema extends z.ZodType<
-    any,
-    any,
-    infer IReturn_1
-  >
-    ? IReturn_1
-    : TOutput,
+export const createTemplateGlobal: <
+  T extends
+    | CreatedTemplateGlobalValue<any>
+    | CreatedTemplateGlobalFunction<any, any>,
 >(
-  gf: TemplateGlobalFunctionOptions<TArgumentsSchema, TOutputSchema> & {
-    fn: (...args: TFnArguments) => TFnOutput;
-  },
-) => CreatedTemplateGlobal<TemplateGlobalFunction>;
-
-// @public
-export const createTemplateGlobalValue: <T extends JsonValue = JsonValue>(
-  value: TemplateGlobalValueOptions<T>,
-) => CreatedTemplateGlobal<T>;
+  t: T,
+) => T;
 
 // @public
 export function deserializeDirectoryContents(
@@ -354,6 +319,22 @@ export const parseRepoUrl: (
   workspace?: string | undefined;
   project?: string | undefined;
 };
+
+// @public (undocumented)
+export type SchemaCompliantTemplateGlobalFunction<
+  T extends TemplateGlobalFunctionSchema,
+> = z.ZodFunction<
+  z.ZodTuple<
+    [
+      ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
+        ? Items
+        : [ReturnType<NonNullable<T['arguments']>>]),
+    ]
+  >,
+  T['output'] extends (zImpl: typeof z) => z.ZodType
+    ? ReturnType<T['output']>
+    : z.ZodUnknown
+>;
 
 // @public (undocumented)
 export interface SerializedFile {
@@ -552,7 +533,10 @@ export type TemplateExample = {
 };
 
 // @public (undocumented)
-export type TemplateFilter = (...args: JsonValue[]) => JsonValue | undefined;
+export type TemplateFilter = (
+  arg: JsonValue,
+  ...rest: JsonValue[]
+) => JsonValue | undefined;
 
 // @public (undocumented)
 export type TemplateFilterExample = {
@@ -562,42 +546,37 @@ export type TemplateFilterExample = {
 };
 
 // @public (undocumented)
-export type TemplateFilterMetadata = {
-  description?: string;
-  schema?: TemplateFilterSchema;
-  examples?: TemplateFilterExample[];
-};
-
-// @public (undocumented)
-export type TemplateFilterOptions<
-  TInputSchema extends Schema | z.ZodType = {},
-  TArgumentsSchema extends (Schema | z.ZodType)[] = [],
-  TOutputSchema extends Schema | z.ZodType = {},
-> = {
-  id: string;
-  description?: string;
-  examples?: TemplateFilterExample[];
-  schema?: {
-    input?: TInputSchema;
-    arguments?: TArgumentsSchema;
-    output?: TOutputSchema;
-  };
-};
+export type TemplateFilterFunction<T extends TemplateFilterSchema> =
+  z.ZodFunction<
+    z.ZodTuple<
+      [
+        T['input'] extends (zImpl: typeof z) => z.ZodType
+          ? ReturnType<T['input']>
+          : z.ZodAny,
+        ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
+          ? Items
+          : [ReturnType<NonNullable<T['arguments']>>]),
+      ]
+    >,
+    T['output'] extends (zImpl: typeof z) => z.ZodType
+      ? ReturnType<T['output']>
+      : z.ZodUnknown
+  >;
 
 // @public (undocumented)
 export type TemplateFilterSchema = {
-  input?: Schema;
-  arguments?: Schema[];
-  output?: Schema;
+  [K in 'input' | 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
 };
 
 // @public (undocumented)
 export type TemplateGlobal = TemplateGlobalFunction | JsonValue;
 
+// Warning: (ae-missing-release-tag) "TemplateGlobalFunction" is part of the package's API, but it is missing a release tag (@alpha, @beta, @public, or @internal)
+//
 // @public (undocumented)
 export type TemplateGlobalFunction<
   Args extends JsonValue[] = JsonValue[],
-  Output extends JsonValue | undefined = JsonValue,
+  Output extends JsonValue | undefined = JsonValue | undefined,
 > = (...args: Args) => Output;
 
 // @public (undocumented)
@@ -608,42 +587,7 @@ export type TemplateGlobalFunctionExample = {
 };
 
 // @public (undocumented)
-export type TemplateGlobalFunctionMetadata = {
-  description?: string;
-  schema?: TemplateGlobalFunctionSchema;
-  examples?: TemplateGlobalFunctionExample[];
-};
-
-// @public (undocumented)
-export type TemplateGlobalFunctionOptions<
-  TArgumentsSchema extends (Schema | z.ZodType)[] = [],
-  TOutputSchema extends Schema | z.ZodType = {},
-> = {
-  id: string;
-  description?: string;
-  examples?: TemplateGlobalFunctionExample[];
-  schema?: {
-    arguments?: TArgumentsSchema;
-    output?: TOutputSchema;
-  };
-};
-
-// @public (undocumented)
 export type TemplateGlobalFunctionSchema = {
-  arguments?: Schema[];
-  output?: Schema;
-};
-
-// @public (undocumented)
-export type TemplateGlobalValue<T extends JsonValue = JsonValue> = {
-  value: T;
-  description?: string;
-};
-
-// @public (undocumented)
-export type TemplateGlobalValueOptions<T extends JsonValue = JsonValue> = {
-  id: string;
-  value: T;
-  description?: string;
+  [K in 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
 };
 ```

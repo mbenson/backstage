@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export {
-  type CreatedTemplateGlobal,
-  type CreatedTemplateGlobalFunction,
-  type CreatedTemplateGlobalValue,
-  type SchemaCompliantTemplateGlobalFunction,
-  type TemplateGlobal,
-  type TemplateGlobalFunction,
-  type TemplateGlobalFunctionExample,
-  type TemplateGlobalFunctionSchema,
-} from './types';
+import {
+  TranslationFunction,
+  TranslationRef,
+} from '@backstage/core-plugin-api/alpha';
+import { ClassNameMap } from '@material-ui/core/styles/withStyles';
 
-export { createTemplateGlobal } from './createTemplateGlobal';
+export type StyleClasses = ClassNameMap<'code' | 'codeRequired'>;
+
+export type Xlate<R> = R extends TranslationRef<any, infer M>
+  ? TranslationFunction<M>
+  : never;

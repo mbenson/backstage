@@ -160,19 +160,13 @@ export type LayoutTemplate<T = any> = NonNullable<
 export type ListActionsResponse = Array<Action>;
 
 // @public
-export type ListTemplateFiltersResponse = Record<string, TemplateFilter>;
-
-// @public
-export type ListTemplateGlobalFunctionsResponse = Record<
-  string,
-  TemplateGlobalFunction
->;
-
-// @public
-export type ListTemplateGlobalValuesResponse = Record<
-  string,
-  TemplateGlobalValue
->;
+export type ListTemplateExtensionsResponse = {
+  filters: Record<string, TemplateFilter>;
+  globals: {
+    functions: Record<string, TemplateGlobalFunction>;
+    values: Record<string, TemplateGlobalValue>;
+  };
+};
 
 // @public
 export type LogEvent = {
@@ -228,14 +222,11 @@ export interface ScaffolderApi {
     templateRef: string,
   ): Promise<TemplateParameterSchema>;
   listActions(): Promise<ListActionsResponse>;
-  listAdditionalTemplateFilters(): Promise<ListTemplateFiltersResponse>;
-  listBuiltInTemplateFilters(): Promise<ListTemplateFiltersResponse>;
   // (undocumented)
   listTasks?(options: { filterByOwnership: 'owned' | 'all' }): Promise<{
     tasks: ScaffolderTask[];
   }>;
-  listTemplateGlobalFunctions(): Promise<ListTemplateGlobalFunctionsResponse>;
-  listTemplateGlobalValues(): Promise<ListTemplateGlobalValuesResponse>;
+  listTemplateExtensions(): Promise<ListTemplateExtensionsResponse>;
   scaffold(
     options: ScaffolderScaffoldOptions,
   ): Promise<ScaffolderScaffoldResponse>;

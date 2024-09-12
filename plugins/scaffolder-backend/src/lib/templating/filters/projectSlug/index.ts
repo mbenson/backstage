@@ -13,4 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { TemplateGlobalsPage } from './TemplateGlobalsPage';
+import {
+  createTemplateFilter,
+  parseRepoUrl,
+} from '@backstage/plugin-scaffolder-node';
+import schema from './schema';
+import examples from './examples';
+import { ScmIntegrations } from '@backstage/integration';
+
+export default (integrations: ScmIntegrations) =>
+  createTemplateFilter({
+    id: 'projectSlug',
+    description: 'Generates a project slug from a repository URL.',
+    schema,
+    examples,
+    filter: (repoUrl: string) => {
+      const { owner, repo } = parseRepoUrl(repoUrl, integrations);
+      return `${owner}/${repo}`;
+    },
+  });

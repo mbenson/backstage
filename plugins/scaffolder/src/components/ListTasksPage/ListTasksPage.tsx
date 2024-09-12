@@ -42,8 +42,7 @@ import {
   actionsRouteRef,
   editRouteRef,
   rootRouteRef,
-  templateFiltersRouteRef,
-  templateGlobalsRouteRef,
+  templateExtensionsRouteRef,
 } from '../../routes';
 import { ScaffolderPageContextMenu } from '@backstage/plugin-scaffolder-react/alpha';
 import { useNavigate } from 'react-router-dom';
@@ -151,16 +150,14 @@ export const ListTasksPage = (props: MyTaskPageProps) => {
   const actionsLink = useRouteRef(actionsRouteRef);
   const createLink = useRouteRef(rootRouteRef);
   const { t } = useTranslationRef(scaffolderTranslationRef);
-  const templateFiltersLink = useRouteRef(templateFiltersRouteRef);
-  const templateGlobalsLink = useRouteRef(templateGlobalsRouteRef);
+  const templateExtensionsLink = useRouteRef(templateExtensionsRouteRef);
 
   const scaffolderPageContextMenuProps = {
     onEditorClicked: () => navigate(editorLink()),
     onActionsClicked: () => navigate(actionsLink()),
     onTasksClicked: undefined,
     onCreateClicked: () => navigate(createLink()),
-    onTemplateFiltersClicked: () => navigate(templateFiltersLink()),
-    onTemplateGlobalsClicked: () => navigate(templateGlobalsLink()),
+    onTemplateExtensionsClicked: () => navigate(templateExtensionsLink()),
   };
   return (
     <Page themeId="home">

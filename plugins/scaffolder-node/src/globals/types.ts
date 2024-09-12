@@ -14,28 +14,43 @@
  * limitations under the License.
  */
 import { JsonValue } from '@backstage/types';
-import { Schema } from 'jsonschema';
+import { z } from 'zod';
 
-/** @public */
 export type TemplateGlobalFunction<
   Args extends JsonValue[] = JsonValue[],
-  Output extends JsonValue | undefined = JsonValue,
+  Output extends JsonValue | undefined = JsonValue | undefined,
 > = (...args: Args) => Output;
 
 /** @public */
 export type TemplateGlobal = TemplateGlobalFunction | JsonValue;
 
 /** @public */
-export type TemplateGlobalValue<T extends JsonValue = JsonValue> = {
+export type CreatedTemplateGlobalValue<T extends JsonValue = JsonValue> = {
+  id: string;
   value: T;
   description?: string;
 };
 
 /** @public */
 export type TemplateGlobalFunctionSchema = {
-  arguments?: Schema[];
-  output?: Schema;
+  [K in 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
 };
+
+/** @public */
+export type SchemaCompliantTemplateGlobalFunction<
+  T extends TemplateGlobalFunctionSchema,
+> = z.ZodFunction<
+  z.ZodTuple<
+    [
+      ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
+        ? Items
+        : [ReturnType<NonNullable<T['arguments']>>]),
+    ]
+  >,
+  T['output'] extends (zImpl: typeof z) => z.ZodType
+    ? ReturnType<T['output']>
+    : z.ZodUnknown
+>;
 
 /** @public */
 export type TemplateGlobalFunctionExample = {
@@ -45,19 +60,25 @@ export type TemplateGlobalFunctionExample = {
 };
 
 /** @public */
-export type TemplateGlobalFunctionMetadata = {
+export type CreatedTemplateGlobalFunction<
+  S extends TemplateGlobalFunctionSchema | undefined = undefined,
+  F extends S extends TemplateGlobalFunctionSchema
+    ? SchemaCompliantTemplateGlobalFunction<S>
+    : (
+        arg: JsonValue,
+        ...rest: JsonValue[]
+      ) => JsonValue = S extends TemplateGlobalFunctionSchema
+    ? SchemaCompliantTemplateGlobalFunction<S>
+    : (...args: JsonValue[]) => JsonValue,
+> = {
+  id: string;
   description?: string;
-  schema?: TemplateGlobalFunctionSchema;
   examples?: TemplateGlobalFunctionExample[];
+  schema?: S;
+  fn: F;
 };
 
 /** @public */
-export type CreatedTemplateGlobal<
-  T extends TemplateGlobalFunction | JsonValue,
-> = {
-  id: string;
-} & (T extends JsonValue
-  ? TemplateGlobalValue<T>
-  : TemplateGlobalFunctionMetadata & {
-      fn: T;
-    });
+export type CreatedTemplateGlobal =
+  | CreatedTemplateGlobalValue<any>
+  | CreatedTemplateGlobalFunction<any, any>;
