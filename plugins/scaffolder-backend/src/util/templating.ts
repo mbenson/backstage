@@ -103,21 +103,21 @@ export function templateGlobalFunctionMetadata(
   if (!globals) {
     return {};
   }
-  if (!Array.isArray(globals)) {
-    const rows = toPairs(globals) as GlobalRecordRow[];
-    const fns = rows.filter(([_, g]) => typeof g === 'function') as [
-      string,
-      Exclude<TemplateGlobal, JsonValue>,
-    ][];
-    return fromPairs(fns.map(([k, _]) => [k, {}]));
+  if (Array.isArray(globals)) {
+    return mapValues(keyBy(filter(globals, isGlobalFunctionInfo), 'id'), v => {
+      const schema = v.schema ? z2js(v.schema) : undefined;
+      return {
+        ...pick(v, 'description', 'examples'),
+        ...pickBy({ schema }),
+      };
+    });
   }
-  return mapValues(keyBy(filter(globals, isGlobalFunctionInfo), 'id'), v => {
-    const schema = v.schema ? z2js(v.schema) : undefined;
-    return {
-      ...pick(v, 'description', 'examples'),
-      ...pickBy({ schema }),
-    };
-  });
+  const rows = toPairs(globals) as GlobalRecordRow[];
+  const fns = rows.filter(([_, g]) => typeof g === 'function') as [
+    string,
+    Exclude<TemplateGlobal, JsonValue>,
+  ][];
+  return fromPairs(fns.map(([k, _]) => [k, {}]));
 }
 
 export function templateGlobalValueMetadata(
@@ -126,24 +126,24 @@ export function templateGlobalValueMetadata(
   if (!globals) {
     return {};
   }
-  if (!Array.isArray(globals)) {
-    const rows = toPairs(globals) as GlobalRecordRow[];
-    const vals = rows.filter(([_, g]) => typeof g !== 'function') as [
-      string,
-      JsonValue,
-    ][];
-    return fromPairs(vals.map(([k, value]) => [k, { value }]));
+  if (Array.isArray(globals)) {
+    return mapValues(
+      keyBy(
+        filter(
+          globals,
+          negate(isGlobalFunctionInfo),
+        ) as CreatedTemplateGlobalValue[],
+        'id',
+      ),
+      v => pick(v, 'value', 'description') as CreatedTemplateGlobalValue,
+    );
   }
-  return mapValues(
-    keyBy(
-      filter(
-        globals,
-        negate(isGlobalFunctionInfo),
-      ) as CreatedTemplateGlobalValue[],
-      'id',
-    ),
-    v => pick(v, 'value', 'description') as CreatedTemplateGlobalValue,
-  );
+  const rows = toPairs(globals) as GlobalRecordRow[];
+  const vals = rows.filter(([_, g]) => typeof g !== 'function') as [
+    string,
+    JsonValue,
+  ][];
+  return fromPairs(vals.map(([k, value]) => [k, { value }]));
 }
 
 export function templateGlobals(
