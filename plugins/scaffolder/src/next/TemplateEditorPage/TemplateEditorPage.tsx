@@ -21,7 +21,6 @@ import {
 } from '../../lib/filesystem';
 import { CustomFieldExplorer } from './CustomFieldExplorer';
 import { TemplateEditor } from './TemplateEditor';
-import { TemplateFormPreviewer } from './TemplateFormPreviewer';
 import {
   FieldExtensionOptions,
   FormProps,
@@ -35,6 +34,7 @@ import {
   actionsRouteRef,
   rootRouteRef,
   scaffolderListTaskRouteRef,
+  templateFormRouteRef,
 } from '../../routes';
 import { useTranslationRef } from '@backstage/core-plugin-api/alpha';
 import { scaffolderTranslationRef } from '../../translation';
@@ -64,6 +64,7 @@ export function TemplateEditorPage(props: TemplateEditorPageProps) {
   const actionsLink = useRouteRef(actionsRouteRef);
   const tasksLink = useRouteRef(scaffolderListTaskRouteRef);
   const createLink = useRouteRef(rootRouteRef);
+  const templateFormLink = useRouteRef(templateFormRouteRef);
   const { t } = useTranslationRef(scaffolderTranslationRef);
 
   const scaffolderPageContextMenuProps = {
@@ -79,16 +80,6 @@ export function TemplateEditorPage(props: TemplateEditorPageProps) {
       <TemplateEditor
         directory={selection.directory}
         fieldExtensions={props.customFieldExtensions}
-        onClose={() => setSelection(undefined)}
-        layouts={props.layouts}
-        formProps={props.formProps}
-      />
-    );
-  } else if (selection?.type === 'form') {
-    content = (
-      <TemplateFormPreviewer
-        defaultPreviewTemplate={props.defaultPreviewTemplate}
-        customFieldExtensions={props.customFieldExtensions}
         onClose={() => setSelection(undefined)}
         layouts={props.layouts}
         formProps={props.formProps}
@@ -111,7 +102,7 @@ export function TemplateEditorPage(props: TemplateEditorPageProps) {
                 .then(directory => setSelection({ type: 'local', directory }))
                 .catch(() => {});
             } else if (option === 'form') {
-              setSelection({ type: 'form' });
+              navigate(templateFormLink());
             } else if (option === 'field-explorer') {
               setSelection({ type: 'field-explorer' });
             }

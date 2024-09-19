@@ -78,3 +78,9 @@ export const editRouteRef = createSubRouteRef({
   parent: rootRouteRef,
   path: '/edit',
 });
+
+export const templateFormRouteRef = createSubRouteRef({
+  id: 'scaffolder/edit',
+  parent: rootRouteRef,
+  path: '/template-form',
+});
