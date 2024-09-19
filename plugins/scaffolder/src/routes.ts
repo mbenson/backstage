@@ -78,3 +78,9 @@ export const editRouteRef = createSubRouteRef({
   parent: rootRouteRef,
   path: '/edit',
 });
+
+export const customFieldsRouteRef = createSubRouteRef({
+  id: 'scaffolder/edit',
+  parent: rootRouteRef,
+  path: '/custom-fields',
+});

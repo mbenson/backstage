@@ -68,6 +68,7 @@ import {
   scaffolderListTaskRouteRef,
   actionsRouteRef,
   editRouteRef,
+  customFieldsRouteRef,
 } from './routes';
 import {
   MyGroupsPicker,
@@ -107,6 +108,7 @@ export const scaffolderPlugin = createPlugin({
     actions: actionsRouteRef,
     listTasks: scaffolderListTaskRouteRef,
     edit: editRouteRef,
+    customFields: customFieldsRouteRef,
   },
   externalRoutes: {
     registerComponent: registerComponentRouteRef,

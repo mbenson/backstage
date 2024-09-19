@@ -34,6 +34,7 @@ import { DEFAULT_SCAFFOLDER_FIELD_EXTENSIONS } from '../../extensions/default';
 
 import {
   actionsRouteRef,
+  customFieldsRouteRef,
   editRouteRef,
   scaffolderListTaskRouteRef,
   scaffolderTaskRouteRef,
@@ -50,7 +51,10 @@ import {
 } from '@backstage/plugin-scaffolder/alpha';
 import { TemplateListPage, TemplateWizardPage } from '../../next';
 import { OngoingTask } from '../OngoingTask';
-import { TemplateEditorPage } from '../../next/TemplateEditorPage';
+import {
+  CustomFieldsPage,
+  TemplateEditorPage,
+} from '../../next/TemplateEditorPage';
 
 /**
  * The Props for the Scaffolder Router
@@ -168,6 +172,14 @@ export const Router = (props: PropsWithChildren<RouterProps>) => {
               layouts={customLayouts}
               formProps={props.formProps}
             />
+          </SecretsContextProvider>
+        }
+      />
+      <Route
+        path={customFieldsRouteRef.path}
+        element={
+          <SecretsContextProvider>
+            <CustomFieldsPage fieldExtensions={fieldExtensions} />
           </SecretsContextProvider>
         }
       />
