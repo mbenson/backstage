@@ -29,6 +29,8 @@ import {
   LinkProps as RouterLinkProps,
   Route,
 } from 'react-router-dom';
+import OpenInNew from '@material-ui/icons/OpenInNew';
+import { useApp } from '@backstage/core-plugin-api';
 
 export function isReactRouterBeta(): boolean {
   const [obj] = createRoutesFromChildren(<Route index element={<div />} />);
@@ -36,7 +38,7 @@ export function isReactRouterBeta(): boolean {
 }
 
 const useStyles = makeStyles(
-  {
+  theme => ({
     visuallyHidden: {
       clip: 'rect(0 0 0 0)',
       clipPath: 'inset(50%)',
@@ -50,9 +52,20 @@ const useStyles = makeStyles(
     externalLink: {
       position: 'relative',
     },
-  },
+    externalLinkIcon: {
+      verticalAlign: 'bottom',
+      marginLeft: theme.spacing(0.5),
+    },
+  }),
   { name: 'Link' },
 );
+
+const ExternalLinkIcon = () => {
+  const app = useApp();
+  const Icon = app.getSystemIcon('externalLink') || OpenInNew;
+  const classes = useStyles();
+  return <Icon className={classes.externalLinkIcon} />;
+};
 
 export const isExternalUri = (uri: string) => /^([a-z+.-]+):/.test(uri);
 
@@ -87,7 +100,7 @@ export type LinkProps = Omit<MaterialLinkProps, 'to'> &
     to: string;
     component?: ElementType<any>;
     noTrack?: boolean;
-    externalLinkIcon?: React.ReactNode;
+    externalLinkIcon?: boolean;
   };
 
 /**
@@ -199,7 +212,7 @@ export const Link = React.forwardRef<any, LinkProps>(
         className={classnames(classes.externalLink, props.className)}
       >
         {props.children}
-        {externalLinkIcon && externalLinkIcon}
+        {externalLinkIcon && <ExternalLinkIcon />}
         <Typography component="span" className={classes.visuallyHidden}>
           , Opens in a new window
         </Typography>
