@@ -42,6 +42,7 @@ export type ScaffolderPageContextMenuProps = {
   onActionsClicked?: () => void;
   onTasksClicked?: () => void;
   onCreateClicked?: () => void;
+  onTemplateExtensionsClicked?: () => void;
 };
 
 /**
@@ -50,15 +51,19 @@ export type ScaffolderPageContextMenuProps = {
 export function ScaffolderPageContextMenu(
   props: ScaffolderPageContextMenuProps,
 ) {
-  const { onEditorClicked, onActionsClicked, onTasksClicked, onCreateClicked } =
-    props;
+  const {
+    onEditorClicked,
+    onActionsClicked,
+    onTasksClicked,
+    onCreateClicked,
+    onTemplateExtensionsClicked,
+  } = props;
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
 
-  if (!onEditorClicked && !onActionsClicked) {
+  if (!(onEditorClicked || onActionsClicked || onTemplateExtensionsClicked)) {
     return null;
   }
-
   const onOpen = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -106,6 +111,14 @@ export function ScaffolderPageContextMenu(
                 <Edit fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Template Editor" />
+            </MenuItem>
+          )}
+          {onTemplateExtensionsClicked && (
+            <MenuItem onClick={onTemplateExtensionsClicked}>
+              <ListItemIcon>
+                <Description fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Template Extensions" />
             </MenuItem>
           )}
           {onActionsClicked && (
