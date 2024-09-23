@@ -19,6 +19,7 @@ import { FetchApi } from '@backstage/core-plugin-api';
 import { FieldExtensionComponent as FieldExtensionComponent_2 } from '@backstage/plugin-scaffolder-react';
 import { FieldExtensionComponentProps as FieldExtensionComponentProps_2 } from '@backstage/plugin-scaffolder-react';
 import { FieldExtensionOptions as FieldExtensionOptions_2 } from '@backstage/plugin-scaffolder-react';
+import { FieldSchema as FieldSchema_2 } from '@backstage/plugin-scaffolder-react';
 import { FieldValidation } from '@rjsf/utils';
 import { FormProps } from '@backstage/plugin-scaffolder-react';
 import { IdentityApi } from '@backstage/core-plugin-api';
@@ -174,15 +175,8 @@ export type FieldExtensionComponentProps<
 // @public @deprecated (undocumented)
 export type FieldExtensionOptions = FieldExtensionOptions_2;
 
-// @public
-export interface FieldSchema<TReturn, TUiOptions> {
-  // (undocumented)
-  readonly schema: CustomFieldExtensionSchema_2;
-  // (undocumented)
-  readonly type: FieldExtensionComponentProps_2<TReturn, TUiOptions>;
-  // (undocumented)
-  readonly uiOptionsType: TUiOptions;
-}
+// @public @deprecated (undocumented)
+export interface FieldSchema<T, P> extends FieldSchema_2<T, P> {}
 
 // @public @deprecated (undocumented)
 export type LayoutOptions = LayoutOptions_2;
@@ -196,7 +190,7 @@ export type ListActionsResponse = ListActionsResponse_2;
 // @public @deprecated (undocumented)
 export type LogEvent = LogEvent_2;
 
-// @public
+// @public @deprecated (undocumented)
 export function makeFieldSchemaFromZod<
   TReturnSchema extends z.ZodType,
   TUiOptionsSchema extends z.ZodType = z.ZodType<any, any, {}>,
@@ -443,7 +437,7 @@ export const RepoUrlPickerFieldExtension: FieldExtensionComponent_2<
 >;
 
 // @public (undocumented)
-export const RepoUrlPickerFieldSchema: FieldSchema<
+export const RepoUrlPickerFieldSchema: FieldSchema_2<
   string,
   {
     allowedHosts?: string[] | undefined;
@@ -469,7 +463,7 @@ export const RepoUrlPickerFieldSchema: FieldSchema<
   }
 >;
 
-// @public
+// @public @deprecated
 export type RepoUrlPickerUiOptions =
   typeof RepoUrlPickerFieldSchema.uiOptionsType;
 
