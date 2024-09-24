@@ -30,12 +30,14 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import ExtensionIcon from '@material-ui/icons/Extension';
 import DescriptionIcon from '@material-ui/icons/Description';
+import FunctionsIcon from '@material-ui/icons/Functions';
 
 import { Link } from '@backstage/core-components';
 import { FieldExtensionOptions } from '@backstage/plugin-scaffolder-react';
 
 import { ActionPageContent } from '../../components/ActionsPage/ActionsPage';
 import { CustomFieldPlaygroud } from './CustomFieldPlaygroud';
+import { TemplateExtensionsPageContent } from '../../components/TemplateExtensionsPage/TemplateExtensionsPage';
 
 const useStyles = makeStyles(
   theme => ({
@@ -75,6 +77,7 @@ export function TemplateEditorToolbar(props: {
   const classes = useStyles();
   const [showFieldsDrawer, setShowFieldsDrawer] = useState(false);
   const [showActionsDrawer, setShowActionsDrawer] = useState(false);
+  const [showExtensionsDrawer, setShowExtensionsDrawer] = useState(false);
   const [showPublishModal, setShowPublishModal] = useState(false);
 
   return (
@@ -96,6 +99,11 @@ export function TemplateEditorToolbar(props: {
               <DescriptionIcon />
             </Button>
           </Tooltip>
+          <Tooltip title="Template Extensions Documentation">
+            <Button onClick={() => setShowExtensionsDrawer(true)}>
+              <FunctionsIcon />
+            </Button>
+          </Tooltip>
           <Button onClick={() => setShowPublishModal(true)}>Publish</Button>
         </ButtonGroup>
         <Drawer
@@ -113,6 +121,14 @@ export function TemplateEditorToolbar(props: {
           onClose={() => setShowActionsDrawer(false)}
         >
           <ActionPageContent />
+        </Drawer>
+        <Drawer
+          classes={{ paper: classes.paper }}
+          anchor="right"
+          open={showExtensionsDrawer}
+          onClose={() => setShowExtensionsDrawer(false)}
+        >
+          <TemplateExtensionsPageContent />
         </Drawer>
         <Dialog
           onClose={() => setShowPublishModal(false)}
