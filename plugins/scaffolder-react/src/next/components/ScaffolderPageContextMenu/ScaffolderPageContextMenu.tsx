@@ -25,6 +25,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Description from '@material-ui/icons/Description';
 import Edit from '@material-ui/icons/Edit';
 import List from '@material-ui/icons/List';
+import Functions from '@material-ui/icons/Functions';
 import MoreVert from '@material-ui/icons/MoreVert';
 import React, { useState } from 'react';
 
@@ -116,7 +117,7 @@ export function ScaffolderPageContextMenu(
           {onTemplateExtensionsClicked && (
             <MenuItem onClick={onTemplateExtensionsClicked}>
               <ListItemIcon>
-                <Description fontSize="small" />
+                <Functions fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Template Extensions" />
             </MenuItem>
