@@ -42,7 +42,7 @@ import { TemplateExtensionsPageContent } from '../../../components/TemplateExten
 const useStyles = makeStyles(
   theme => ({
     paper: {
-      width: '40%',
+      width: '60%',
       padding: theme.spacing(2),
       backgroundColor: theme.palette.background.default,
     },
