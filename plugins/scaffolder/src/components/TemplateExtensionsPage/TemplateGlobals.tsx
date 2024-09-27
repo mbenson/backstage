@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CodeSnippet, MarkdownContent } from '@backstage/core-components';
+import { CodeSnippet, Link, MarkdownContent } from '@backstage/core-components';
 import {
   ListTemplateExtensionsResponse,
   TemplateGlobalFunction,
@@ -25,6 +25,7 @@ import Box from '@material-ui/core/Box';
 import { ClassNameMap } from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import LinkIcon from '@material-ui/icons/Link';
 import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
 import { scaffolderTranslationRef } from '../../translation';
@@ -126,9 +127,17 @@ const TemplateGlobalFunctions = ({
     <>
       {Object.entries(functions).map(([fnName, fn]) => (
         <Box pb={4} key={fnName} id={fnName} data-testid={fnName}>
-          <Typography variant="h4" component="h2" className={classes.code}>
+          <Typography
+            id={fnName}
+            variant="h4"
+            component="h2"
+            className={classes.code}
+          >
             {fnName}
           </Typography>
+          <Link className={classes.link} to={`#${fnName}`}>
+            <LinkIcon />
+          </Link>
           <FunctionDetailContent {...{ classes, fnName, fn, t }} />
         </Box>
       ))}
@@ -147,9 +156,17 @@ const TemplateGlobalValues = ({
     <>
       {Object.entries(values).map(([key, gv]) => (
         <Box pb={4} key={key} id={key} data-testid={key}>
-          <Typography variant="h4" component="h2" className={classes.code}>
+          <Typography
+            id={key}
+            variant="h4"
+            component="h2"
+            className={classes.code}
+          >
             {key}
           </Typography>
+          <Link className={classes.link} to={`#${key}`}>
+            <LinkIcon />
+          </Link>
           {gv.description && <MarkdownContent content={gv.description} />}
           <Box padding={1} data-testid={`${key}.value`}>
             <CodeSnippet
