@@ -41,7 +41,7 @@ import {
   ScaffolderPageContextMenuProps,
 } from '@backstage/plugin-scaffolder-react/alpha';
 import { every, isEmpty } from 'lodash';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAsync from 'react-use/esm/useAsync';
 import { TemplateFilters } from './TemplateFilters';
@@ -71,6 +71,10 @@ const useStyles = makeStyles(theme => ({
       color: theme.palette.error.light,
     },
   },
+
+  link: {
+    paddingLeft: theme.spacing(1),
+  },
 }));
 
 export const TemplateExtensionsPageContent = () => {
@@ -80,7 +84,14 @@ export const TemplateExtensionsPageContent = () => {
 
   const { loading, value, error } = useAsync(async () => {
     return api.listTemplateExtensions();
-  });
+  }, [api]);
+
+  useEffect(() => {
+    if (value && window.location.hash) {
+      document.querySelector(window.location.hash)?.scrollIntoView();
+    }
+  }, [value]);
+
   if (loading) {
     return <Progress />;
   }
