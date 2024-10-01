@@ -43,8 +43,8 @@ export function CustomFieldsPage(props: CustomFieldsPageProps) {
   return (
     <Page themeId="home">
       <Header
-        title={t('templateEditorPage.title')}
-        subtitle={t('templateEditorPage.subtitle')}
+        title={t('templateCustomFieldPage.title')}
+        subtitle={t('templateCustomFieldPage.subtitle')}
       />
       <Content>
         <CustomFieldExplorer

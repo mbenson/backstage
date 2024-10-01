@@ -40,9 +40,15 @@ import { CustomFieldPlaygroud } from './CustomFieldPlaygroud';
 const useStyles = makeStyles(
   theme => ({
     paper: {
-      width: '40%',
+      width: '90%',
       padding: theme.spacing(2),
       backgroundColor: theme.palette.background.default,
+      [theme.breakpoints.up('sm')]: {
+        width: '70%',
+      },
+      [theme.breakpoints.up('md')]: {
+        width: '50%',
+      },
     },
     appbar: {
       zIndex: 1,
@@ -81,11 +87,7 @@ export function TemplateEditorToolbar(props: {
     <AppBar className={classes.appbar} position="relative">
       <Toolbar className={classes.toolbar}>
         <div className={classes.toolbarCustomActions}>{children}</div>
-        <ButtonGroup
-          className={classes.toolbarDefaultActions}
-          variant="outlined"
-          color="primary"
-        >
+        <ButtonGroup className={classes.toolbarDefaultActions} variant="text">
           <Tooltip title="Custom Fields Explorer">
             <Button onClick={() => setShowFieldsDrawer(true)}>
               <ExtensionIcon />

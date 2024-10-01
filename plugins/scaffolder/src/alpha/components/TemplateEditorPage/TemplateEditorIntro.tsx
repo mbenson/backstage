@@ -40,13 +40,16 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
   },
   cardGrid: {
+    maxWidth: 1960,
     display: 'grid',
-    maxWidth: 1000,
-    gridTemplateColumns: '1fr 1fr',
-    gridAutoRows: '1fr 1fr',
-    gap: '1rem',
-    [theme.breakpoints.down('sm')]: {
-      gridAutoFlow: 'row',
+    gridGap: theme.spacing(2),
+    gridAutoFlow: 'row',
+    [theme.breakpoints.up('md')]: {
+      gridTemplateRows: '1fr 1fr',
+      gridTemplateColumns: '1fr 1fr',
+    },
+    [theme.breakpoints.up('lg')]: {
+      gridTemplateColumns: '1fr 1fr 1fr 1fr',
     },
   },
   card: {
