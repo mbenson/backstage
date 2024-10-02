@@ -64,6 +64,7 @@
     "@opentelemetry/auto-instrumentations-node": "^0.50.0",
     "@opentelemetry/exporter-prometheus": "^0.53.0",
     "@opentelemetry/sdk-node": "^0.53.0",
+    "backstage-plugin-scaffolder-backend-module-tx-doc-demo": "^0.0.0",
     "example-app": "link:../app"
   },
   "devDependencies": {
