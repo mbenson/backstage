@@ -21746,6 +21746,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"backstage-plugin-scaffolder-backend-module-tx-doc-demo@^0.0.0, backstage-plugin-scaffolder-backend-module-tx-doc-demo@workspace:plugins/scaffolder-backend-module-tx-doc-demo":
+  version: 0.0.0-use.local
+  resolution: "backstage-plugin-scaffolder-backend-module-tx-doc-demo@workspace:plugins/scaffolder-backend-module-tx-doc-demo"
+  dependencies:
+    "@backstage/backend-plugin-api": "workspace:^"
+    "@backstage/backend-test-utils": "workspace:^"
+    "@backstage/cli": "workspace:^"
+  languageName: unknown
+  linkType: soft
+
 "bail@npm:^2.0.0":
   version: 2.0.1
   resolution: "bail@npm:2.0.1"
@@ -26985,6 +26995,7 @@ __metadata:
     "@opentelemetry/auto-instrumentations-node": ^0.50.0
     "@opentelemetry/exporter-prometheus": ^0.53.0
     "@opentelemetry/sdk-node": ^0.53.0
+    backstage-plugin-scaffolder-backend-module-tx-doc-demo: ^0.0.0
     example-app: "link:../app"
   languageName: unknown
   linkType: soft

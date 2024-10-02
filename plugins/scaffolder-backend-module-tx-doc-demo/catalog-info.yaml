@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: backstage-plugin-scaffolder-backend-module-tx-doc-demo
+  title: backstage-plugin-scaffolder-backend-module-tx-doc-demo
+  description: The tx-doc-demo backend module for the scaffolder plugin.
+spec:
+  lifecycle: experimental
+  type: backstage-backend-plugin-module
+  owner: maintainers
