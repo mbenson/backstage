@@ -6,7 +6,7 @@ description: Template extensions system
 
 As mentioned, Backstage templating is based on [nunjucks][]. You can customize
 the features available to your templates in multiple ways, through
-filters and globals.
+[filters](#template-filters) and globals.
 
 # Template Filters
 
@@ -222,9 +222,17 @@ by writing custom actions which can be used alongside our
 
 :::
 
-### Streamlining Template Extension Creation with Backstage CLI
+# Customizing the templating environment
 
-The creation of template extensions in Backstage can be simplified using the Backstage CLI.
+You can use custom plugins to install your own template filters, global
+functions and global values. If you are on the new backend you will use a
+scaffolder plugin module to do this; we will also discuss how to install
+template extensions on the old backend.
+
+## Streamlining Template Extension Module Creation with Backstage CLI
+
+The creation of a template extensions module in Backstage can be accelerated
+using the Backstage CLI.
 
 Start by using the `yarn backstage-cli new` command to generate a scaffolder module. This command sets up the necessary boilerplate code, providing a smooth start:
 
@@ -246,42 +254,47 @@ Since we want to extend the Scaffolder backend, enter `scaffolder` when prompted
 Next, enter a name for your module (relative to the generated `scaffolder-backend-module-` prefix),
 and the CLI will generate the required files and directory structure.
 
-### Writing your Module
+## Writing your Module
 
-Once the CLI has generated for you the essential structure for your new scaffolder module,
-it's time to implement our template extensions. Here we'll demonstrate how to create each
-of the supported extension types.
+Once the CLI has generated for you the essential structure for your new
+scaffolder module, it's time to implement our template extensions. Here we'll
+demonstrate how to create each of the supported extension types.
 
-`src/module.ts` is where the magic happens. Firstly, in that file, we prepare ourselves
-to utilize the relevant API extension point, by adding:
+`src/module.ts` is where the magic happens. Firstly, in that file, we prepare
+ourselves to utilize the relevant API extension point, by adding:
 
 ```ts
 import { scaffolderTemplatingExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
 ```
 
-In your `createBackendModule({register})` callback, augment
-`reg.registerInit({deps})` to add alongside the generated
-`logger`
-Additionally, add to the `register` callback of your
+Next, add to the `register` callback of your
 `CreateBackendModuleOptions` (argument to `createBackendModule()`)
 a property associating the imported extension point with a
 reference name, e.g. `templating`:
 
 ```ts
-deps: {
-  logger: coreServices.logger,
-  templating: scaffolderTemplatingExtensionPoint,
-},
+      deps: {
+        logger: coreServices.logger,
+        templating: scaffolderTemplatingExtensionPoint,
+      },
+```
+
+Finally, make your `templating` extension point available in your `init`
+callback by adding it to the argument structure:
+
+```ts
+      async init({ logger, templating }) {
 ```
 
 Now we're ready to extend the scaffolder templating engine. For our
 purposes here we'll drop everything in `module.ts`; use your own judgment
-as to whether, when and how to organize your real-world module.
+as to the organization of your real-world plugin modules.
 
 #### Template Filter
 
-In this contrived example, we will add a filter that simply tests whether
-the incoming string value contains a particular character sequence.
+In this contrived example, we will add a filter that tests whether
+the incoming string value contains a particular character sequence
+a specified number of times.
 
 First you'll need some new imports:
 
@@ -299,11 +312,11 @@ And in `init` function passed to `register`, we'll add:
 ```ts
 templating.addTemplateFilters([
   createTemplateFilter({
-    id: 'containsSubstring',
+    id: 'occursExactly',
     schema: {
       input: z => z.string().describe('a string'),
       arguments: z => z.string().describe('contained string to check'),
-      output: z => z.any().describe('same value'),
+      output: z => z.boolean().describe('whether '),
     } as TemplateFilterSchema,
     filter: (s: any) => s,
   }),

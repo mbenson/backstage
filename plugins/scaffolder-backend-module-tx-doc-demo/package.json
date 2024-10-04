@@ -24,7 +24,8 @@
     "postpack": "backstage-cli package postpack"
   },
   "dependencies": {
-    "@backstage/backend-plugin-api": "workspace:^"
+    "@backstage/backend-plugin-api": "workspace:^",
+    "@backstage/plugin-scaffolder-node": "workspace:^"
   },
   "devDependencies": {
     "@backstage/backend-test-utils": "workspace:^",

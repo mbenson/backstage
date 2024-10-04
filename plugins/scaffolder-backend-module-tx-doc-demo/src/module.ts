@@ -18,14 +18,51 @@ import {
   createBackendModule,
 } from '@backstage/backend-plugin-api';
 
+import {
+  createTemplateFilter,
+  TemplateFilterSchema,
+} from '@backstage/plugin-scaffolder-node';
+
+import { scaffolderTemplatingExtensionPoint } from '@backstage/plugin-scaffolder-node/alpha';
+
 export const scaffolderModuleTxDocDemo = createBackendModule({
   pluginId: 'scaffolder',
   moduleId: 'tx-doc-demo',
   register(reg) {
     reg.registerInit({
-      deps: { logger: coreServices.logger },
-      async init({ logger }) {
+      deps: {
+        logger: coreServices.logger,
+        templating: scaffolderTemplatingExtensionPoint,
+      },
+      async init({ logger, templating }) {
         logger.info('Hello World!');
+        templating.addTemplateFilters([
+          createTemplateFilter({
+            id: 'containsOccurrences',
+            schema: {
+              input: z => z.string(),
+              arguments: z =>
+                z.tuple([
+                  z.string().describe('factor by which to multiply input'),
+                  z
+                    .number()
+                    .describe('addend by which to increase input * factor'),
+                ]),
+            } as TemplateFilterSchema,
+            filter: (arg: string, substring: string, times: number) => {
+              let pos = 0;
+              let count = 0;
+              while (pos < arg.length) {
+                pos = arg.indexOf(substring, pos);
+                if (pos < 0) {
+                  break;
+                }
+                count++;
+              }
+              return count === times;
+            },
+          }),
+        ]);
       },
     });
   },
