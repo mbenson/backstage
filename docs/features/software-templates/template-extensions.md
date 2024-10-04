@@ -300,25 +300,39 @@ First you'll need some new imports:
 
 ```ts
 import {
-  CreatedTemplateFilter,
   createTemplateFilter,
   TemplateFilterSchema,
 } from '@backstage/plugin-scaffolder-node';
 import { z } from 'zod';
 ```
 
-And in `init` function passed to `register`, we'll add:
+And in the `init` callback function passed to `register`, we'll add:
 
 ```ts
-templating.addTemplateFilters([
   createTemplateFilter({
-    id: 'occursExactly',
+    id: 'containsOccurrences',
     schema: {
-      input: z => z.string().describe('a string'),
-      arguments: z => z.string().describe('contained string to check'),
-      output: z => z.boolean().describe('whether '),
+      input: z => z.string(),
+      arguments: z =>
+        z.tuple([
+          z.string().describe('factor by which to multiply input'),
+          z
+            .number()
+            .describe('addend by which to increase input * factor'),
+        ]),
     } as TemplateFilterSchema,
-    filter: (s: any) => s,
+    filter: (arg: string, substring: string, times: number) => {
+      let pos = 0;
+      let count = 0;
+      while (pos < arg.length) {
+        pos = arg.indexOf(substring, pos);
+        if (pos < 0) {
+          break;
+        }
+        count++;
+      }
+      return count === times;
+    },
   }),
 ]);
 ```
