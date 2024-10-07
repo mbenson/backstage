@@ -43,13 +43,34 @@ export const scaffolderModuleTxDocDemo = createBackendModule({
               input: z => z.string(),
               arguments: z =>
                 z.tuple([
-                  z.string().describe('factor by which to multiply input'),
+                  z.string().describe('substring whose occurrences to find'),
                   z
                     .number()
-                    .describe('addend by which to increase input * factor'),
+                    .describe('number of occurrences to check for')
+                    .optional(),
                 ]),
+              output: z => z.boolean(),
             } as TemplateFilterSchema,
-            filter: (arg: string, substring: string, times: number) => {
+            examples: [
+              {
+                description: 'Basic Usage',
+                example: `\
+- id: log
+  name: Contains Occurrences
+  action: debug:log
+  input:
+    message: \${{ parameters.projectName | containsOccurrences('-', 2) }}
+            `,
+                notes: `\
+- **Input**: \`foo-bar-baz\`
+- **Output**: \`true\`
+            `,
+              },
+            ],
+            filter: (arg: string, substring: string, times?: number) => {
+              if (times === undefined) {
+                return arg.includes(substring);
+              }
               let pos = 0;
               let count = 0;
               while (pos < arg.length) {
