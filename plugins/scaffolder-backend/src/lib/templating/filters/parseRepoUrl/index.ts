@@ -25,7 +25,7 @@ export default (integrations: ScmIntegrations) =>
   createTemplateFilter({
     id: 'parseRepoUrl',
     description:
-      'Parses a repository URL into its components, such as owner, repository name, and more.',
+      'Parses a repository URL into its constituent parts: owner, repository name, etc.',
     schema,
     examples,
     filter: (url: string) => parseRepoUrl(url, integrations),
