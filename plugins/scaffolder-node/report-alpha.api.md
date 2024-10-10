@@ -71,7 +71,7 @@ export const scaffolderTaskBrokerExtensionPoint: ExtensionPoint<ScaffolderTaskBr
 export interface ScaffolderTemplatingExtensionPoint {
   // (undocumented)
   addTemplateFilters(
-    filters: Record<string, TemplateFilter> | CreatedTemplateFilter[],
+    filters: Record<string, TemplateFilter> | CreatedTemplateFilter<any, any>[],
   ): void;
   // (undocumented)
   addTemplateGlobals(

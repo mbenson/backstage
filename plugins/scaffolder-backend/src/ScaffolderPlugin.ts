@@ -25,6 +25,8 @@ import {
   CreatedTemplateFilter,
   CreatedTemplateGlobal,
   createTemplateFilter,
+  createTemplateGlobalFunction,
+  createTemplateGlobalValue,
   TaskBroker,
   TemplateAction,
 } from '@backstage/plugin-scaffolder-node';
@@ -52,7 +54,6 @@ import {
 } from './scaffolder';
 import { createRouter } from './service/router';
 import { templateFilterImpls, templateGlobals } from './util/templating';
-import { createTemplateGlobal } from '@backstage/plugin-scaffolder-node';
 
 /**
  * Scaffolder plugin
@@ -79,7 +80,7 @@ export const scaffolderPlugin = createBackendPlugin({
       },
     });
 
-    const additionalTemplateFilters: CreatedTemplateFilter[] = [];
+    const additionalTemplateFilters: CreatedTemplateFilter<any, any>[] = [];
     const additionalTemplateGlobals: CreatedTemplateGlobal[] = [];
 
     env.registerExtensionPoint(scaffolderTemplatingExtensionPoint, {
@@ -100,12 +101,9 @@ export const scaffolderPlugin = createBackendPlugin({
           ...(Array.isArray(newGlobals)
             ? newGlobals
             : Object.entries(newGlobals).map(([id, global]) =>
-                createTemplateGlobal({
-                  id,
-                  ...(typeof global === 'function'
-                    ? { fn: global }
-                    : { value: global }),
-                }),
+                typeof global === 'function'
+                  ? createTemplateGlobalFunction({ id, fn: global })
+                  : createTemplateGlobalValue({ id, value: global }),
               )),
         );
       },

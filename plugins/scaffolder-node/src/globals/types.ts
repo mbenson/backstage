@@ -33,25 +33,13 @@ export type CreatedTemplateGlobalValue<T extends JsonValue = JsonValue> = {
 };
 
 /** @public */
-export type TemplateGlobalFunctionSchema = {
-  [K in 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
-};
-
-/** @public */
-export type SchemaCompliantTemplateGlobalFunction<
-  T extends TemplateGlobalFunctionSchema,
-> = z.ZodFunction<
-  z.ZodTuple<
-    [
-      ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
-        ? Items
-        : [ReturnType<NonNullable<T['arguments']>>]),
-    ]
+export type TemplateGlobalFunctionSchema<
+  Args extends z.ZodTuple<
+    [] | [z.ZodType<JsonValue>, ...(z.ZodType<JsonValue> | z.ZodUnknown)[]],
+    z.ZodType<JsonValue> | z.ZodUnknown | null
   >,
-  T['output'] extends (zImpl: typeof z) => z.ZodType
-    ? ReturnType<T['output']>
-    : z.ZodUnknown
->;
+  Result extends z.ZodType<JsonValue> | z.ZodUndefined,
+> = (zod: typeof z) => z.ZodFunction<Args, Result>;
 
 /** @public */
 export type TemplateGlobalFunctionExample = {
@@ -62,15 +50,10 @@ export type TemplateGlobalFunctionExample = {
 
 /** @public */
 export type CreatedTemplateGlobalFunction<
-  S extends TemplateGlobalFunctionSchema | undefined = undefined,
-  F extends S extends TemplateGlobalFunctionSchema
-    ? SchemaCompliantTemplateGlobalFunction<S>
-    : (
-        arg: JsonValue,
-        ...rest: JsonValue[]
-      ) => JsonValue = S extends TemplateGlobalFunctionSchema
-    ? SchemaCompliantTemplateGlobalFunction<S>
-    : (...args: JsonValue[]) => JsonValue,
+  S extends TemplateGlobalFunctionSchema<any, any> | undefined,
+  F extends S extends TemplateGlobalFunctionSchema<any, any>
+    ? z.infer<ReturnType<S>>
+    : (...args: JsonValue[]) => JsonValue | undefined,
 > = {
   id: string;
   description?: string;

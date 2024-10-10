@@ -38,15 +38,13 @@ import {
 } from '@backstage/catalog-model';
 import { createRouter, DatabaseTaskStore } from '../index';
 import {
-  CreatedTemplateFilter,
   CreatedTemplateGlobal,
   createTemplateFilter,
-  createTemplateGlobal,
+  createTemplateGlobalFunction,
+  createTemplateGlobalValue,
   TaskBroker,
   TemplateFilter,
-  TemplateFilterSchema,
   TemplateGlobal,
-  TemplateGlobalFunctionSchema,
 } from '@backstage/plugin-scaffolder-node';
 import { StorageTaskBroker } from '../scaffolder/tasks/StorageTaskBroker';
 import {
@@ -121,10 +119,11 @@ describe.each([
     additionalTemplateFilters: [
       createTemplateFilter({
         id: 'foo',
-        schema: {
-          input: z => z.any().describe('a value'),
-          output: z => z.any().describe('same value'),
-        } as TemplateFilterSchema,
+        schema: z =>
+          z
+            .function()
+            .args(z.any().describe('a value'))
+            .returns(z.any().describe('same value')),
         filter: (s: any) => s,
       }),
       createTemplateFilter({
@@ -134,27 +133,31 @@ describe.each([
       createTemplateFilter({
         id: 'baz',
         description: 'append the argument to the incoming value',
-        schema: {
-          input: z => z.string(),
-          arguments: z => z.string().describe('value to append to input'),
-          output: z => z.string().describe('input+suffix'),
-        } as TemplateFilterSchema,
+        schema: z =>
+          z
+            .function()
+            .args(
+              z.string().describe('input'),
+              z.string().describe('value to append to input'),
+            )
+            .returns(z.string().describe('input+suffix')),
         filter: (what: string, ever: string) => what + ever,
       }),
       createTemplateFilter({
         id: 'blah',
-        schema: {
-          input: z => z.number(),
-          arguments: z =>
-            z.tuple([
+        schema: z =>
+          z
+            .function()
+            .args(
+              z.number().describe('input'),
               z.number().describe('factor by which to multiply input'),
               z.number().describe('addend by which to increase input * factor'),
-            ]),
-        } as TemplateFilterSchema,
+            )
+            .returns(z.number().describe('input * factor + addend')),
         filter: (base: number, factor: number, addend: number) =>
           base * factor + addend,
       }),
-    ] as CreatedTemplateFilter[],
+    ],
   },
   {
     desc: 'legacy template globals',
@@ -166,18 +169,19 @@ describe.each([
   {
     desc: 'created template globals',
     additionalTemplateGlobals: [
-      createTemplateGlobal({
+      createTemplateGlobalValue({
         id: 'nul',
         description: 'null value',
         value: null,
       }),
-      createTemplateGlobal({
+      createTemplateGlobalFunction({
         id: 'nop',
         description: 'nop function',
-        schema: {
-          arguments: z => z.any().describe('input'),
-          output: z => z.any().describe('output'),
-        } as TemplateGlobalFunctionSchema,
+        schema: z =>
+          z
+            .function()
+            .args(z.any().describe('input'))
+            .returns(z.any().describe('output')),
         fn: (x: any) => x,
       }),
     ] as CreatedTemplateGlobal[],

@@ -148,14 +148,9 @@ export function createBranch(options: {
 
 // @public (undocumented)
 export type CreatedTemplateFilter<
-  S extends TemplateFilterSchema | undefined = undefined,
-  F extends S extends TemplateFilterSchema
-    ? TemplateFilterFunction<S>
-    : (
-        arg: JsonValue,
-        ...rest: JsonValue[]
-      ) => JsonValue | undefined = S extends TemplateFilterSchema
-    ? TemplateFilterFunction<S>
+  S extends TemplateFilterSchema<any, any> | undefined,
+  F extends S extends TemplateFilterSchema<any, any>
+    ? z.infer<ReturnType<S>>
     : (arg: JsonValue, ...rest: JsonValue[]) => JsonValue | undefined,
 > = {
   id: string;
@@ -172,15 +167,10 @@ export type CreatedTemplateGlobal =
 
 // @public (undocumented)
 export type CreatedTemplateGlobalFunction<
-  S extends TemplateGlobalFunctionSchema | undefined = undefined,
-  F extends S extends TemplateGlobalFunctionSchema
-    ? SchemaCompliantTemplateGlobalFunction<S>
-    : (
-        arg: JsonValue,
-        ...rest: JsonValue[]
-      ) => JsonValue = S extends TemplateGlobalFunctionSchema
-    ? SchemaCompliantTemplateGlobalFunction<S>
-    : (...args: JsonValue[]) => JsonValue,
+  S extends TemplateGlobalFunctionSchema<any, any> | undefined,
+  F extends S extends TemplateGlobalFunctionSchema<any, any>
+    ? z.infer<ReturnType<S>>
+    : (...args: JsonValue[]) => JsonValue | undefined,
 > = {
   id: string;
   description?: string;
@@ -226,20 +216,29 @@ export const createTemplateAction: <
 ) => TemplateAction<TActionInput, TActionOutput>;
 
 // @public
-export const createTemplateFilter: <TF extends CreatedTemplateFilter<any, any>>(
-  filter: TF,
-) => CreatedTemplateFilter<any, any>;
+export const createTemplateFilter: <
+  S extends TemplateFilterSchema<any, any> | undefined,
+  F extends S extends TemplateFilterSchema<any, any>
+    ? z.TypeOf<ReturnType<S>>
+    : (arg: JsonValue, ...rest: JsonValue[]) => JsonValue | undefined,
+>(
+  filter: CreatedTemplateFilter<S, F>,
+) => CreatedTemplateFilter<S, F>;
 
 // @public
-export const createTemplateGlobal: <
-  T extends
-    | CreatedTemplateGlobalValue<any>
-    | CreatedTemplateGlobalFunction<any, any>,
+export const createTemplateGlobalFunction: <
+  S extends TemplateGlobalFunctionSchema<any, any> | undefined,
+  F extends S extends TemplateGlobalFunctionSchema<any, any>
+    ? z.TypeOf<ReturnType<S>>
+    : (...args: JsonValue[]) => JsonValue | undefined,
 >(
-  t: T,
-) => T extends CreatedTemplateGlobalValue
-  ? CreatedTemplateGlobalValue<any>
-  : CreatedTemplateGlobalFunction<any>;
+  fn: CreatedTemplateGlobalFunction<S, F>,
+) => CreatedTemplateGlobalFunction<any, any>;
+
+// @public
+export const createTemplateGlobalValue: (
+  v: CreatedTemplateGlobalValue,
+) => CreatedTemplateGlobalValue;
 
 // @public
 export function deserializeDirectoryContents(
@@ -321,22 +320,6 @@ export const parseRepoUrl: (
   workspace?: string | undefined;
   project?: string | undefined;
 };
-
-// @public (undocumented)
-export type SchemaCompliantTemplateGlobalFunction<
-  T extends TemplateGlobalFunctionSchema,
-> = z.ZodFunction<
-  z.ZodTuple<
-    [
-      ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
-        ? Items
-        : [ReturnType<NonNullable<T['arguments']>>]),
-    ]
-  >,
-  T['output'] extends (zImpl: typeof z) => z.ZodType
-    ? ReturnType<T['output']>
-    : z.ZodUnknown
->;
 
 // @public (undocumented)
 export interface SerializedFile {
@@ -570,27 +553,14 @@ export type TemplateFilterExample = {
 };
 
 // @public (undocumented)
-export type TemplateFilterFunction<T extends TemplateFilterSchema> =
-  z.ZodFunction<
-    z.ZodTuple<
-      [
-        T['input'] extends (zImpl: typeof z) => z.ZodType
-          ? ReturnType<T['input']>
-          : z.ZodAny,
-        ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
-          ? Items
-          : [ReturnType<NonNullable<T['arguments']>>]),
-      ]
-    >,
-    T['output'] extends (zImpl: typeof z) => z.ZodType
-      ? ReturnType<T['output']>
-      : z.ZodUnknown
-  >;
-
-// @public (undocumented)
-export type TemplateFilterSchema = {
-  [K in 'input' | 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
-};
+export type TemplateFilterSchema<
+  Args extends z.ZodTuple<
+    | [z.ZodType<JsonValue>]
+    | [z.ZodType<JsonValue>, ...(z.ZodType<JsonValue> | z.ZodUnknown)[]],
+    z.ZodType<JsonValue> | z.ZodUnknown | null
+  >,
+  Result extends z.ZodType<JsonValue> | z.ZodUndefined,
+> = (zod: typeof z) => z.ZodFunction<Args, Result>;
 
 // @public (undocumented)
 export type TemplateGlobal = TemplateGlobalFunction | JsonValue;
@@ -609,9 +579,13 @@ export type TemplateGlobalFunctionExample = {
 };
 
 // @public (undocumented)
-export type TemplateGlobalFunctionSchema = {
-  [K in 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
-};
+export type TemplateGlobalFunctionSchema<
+  Args extends z.ZodTuple<
+    [] | [z.ZodType<JsonValue>, ...(z.ZodType<JsonValue> | z.ZodUnknown)[]],
+    z.ZodType<JsonValue> | z.ZodUnknown | null
+  >,
+  Result extends z.ZodType<JsonValue> | z.ZodUndefined,
+> = (zod: typeof z) => z.ZodFunction<Args, Result>;
 
 // Warnings were encountered during analysis:
 //
@@ -634,17 +608,15 @@ export type TemplateGlobalFunctionSchema = {
 // src/files/types.d.ts:10:5 - (ae-undocumented) Missing documentation for "symlink".
 // src/filters/types.d.ts:4:1 - (ae-undocumented) Missing documentation for "TemplateFilter".
 // src/filters/types.d.ts:6:1 - (ae-undocumented) Missing documentation for "TemplateFilterSchema".
-// src/filters/types.d.ts:10:1 - (ae-undocumented) Missing documentation for "TemplateFilterExample".
-// src/filters/types.d.ts:16:1 - (ae-undocumented) Missing documentation for "TemplateFilterFunction".
-// src/filters/types.d.ts:21:1 - (ae-undocumented) Missing documentation for "CreatedTemplateFilter".
+// src/filters/types.d.ts:8:1 - (ae-undocumented) Missing documentation for "TemplateFilterExample".
+// src/filters/types.d.ts:14:1 - (ae-undocumented) Missing documentation for "CreatedTemplateFilter".
 // src/globals/types.d.ts:4:1 - (ae-undocumented) Missing documentation for "TemplateGlobalFunction".
 // src/globals/types.d.ts:6:1 - (ae-undocumented) Missing documentation for "TemplateGlobal".
 // src/globals/types.d.ts:8:1 - (ae-undocumented) Missing documentation for "CreatedTemplateGlobalValue".
 // src/globals/types.d.ts:14:1 - (ae-undocumented) Missing documentation for "TemplateGlobalFunctionSchema".
-// src/globals/types.d.ts:18:1 - (ae-undocumented) Missing documentation for "SchemaCompliantTemplateGlobalFunction".
-// src/globals/types.d.ts:22:1 - (ae-undocumented) Missing documentation for "TemplateGlobalFunctionExample".
-// src/globals/types.d.ts:28:1 - (ae-undocumented) Missing documentation for "CreatedTemplateGlobalFunction".
-// src/globals/types.d.ts:36:1 - (ae-undocumented) Missing documentation for "CreatedTemplateGlobal".
+// src/globals/types.d.ts:17:1 - (ae-undocumented) Missing documentation for "TemplateGlobalFunctionExample".
+// src/globals/types.d.ts:23:1 - (ae-undocumented) Missing documentation for "CreatedTemplateGlobalFunction".
+// src/globals/types.d.ts:31:1 - (ae-undocumented) Missing documentation for "CreatedTemplateGlobal".
 // src/tasks/types.d.ts:83:5 - (ae-undocumented) Missing documentation for "cancelSignal".
 // src/tasks/types.d.ts:84:5 - (ae-undocumented) Missing documentation for "spec".
 // src/tasks/types.d.ts:85:5 - (ae-undocumented) Missing documentation for "secrets".

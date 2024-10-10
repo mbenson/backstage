@@ -23,9 +23,14 @@ export type TemplateFilter = (
 ) => JsonValue | undefined;
 
 /** @public */
-export type TemplateFilterSchema = {
-  [K in 'input' | 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
-};
+export type TemplateFilterSchema<
+  Args extends z.ZodTuple<
+    | [z.ZodType<JsonValue>]
+    | [z.ZodType<JsonValue>, ...(z.ZodType<JsonValue> | z.ZodUnknown)[]],
+    z.ZodType<JsonValue> | z.ZodUnknown | null
+  >,
+  Result extends z.ZodType<JsonValue> | z.ZodUndefined,
+> = (zod: typeof z) => z.ZodFunction<Args, Result>;
 
 /** @public */
 export type TemplateFilterExample = {
@@ -35,33 +40,10 @@ export type TemplateFilterExample = {
 };
 
 /** @public */
-export type TemplateFilterFunction<T extends TemplateFilterSchema> =
-  z.ZodFunction<
-    z.ZodTuple<
-      [
-        T['input'] extends (zImpl: typeof z) => z.ZodType
-          ? ReturnType<T['input']>
-          : z.ZodAny,
-        ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
-          ? Items
-          : [ReturnType<NonNullable<T['arguments']>>]),
-      ]
-    >,
-    T['output'] extends (zImpl: typeof z) => z.ZodType
-      ? ReturnType<T['output']>
-      : z.ZodUnknown
-  >;
-
-/** @public */
 export type CreatedTemplateFilter<
-  S extends TemplateFilterSchema | undefined = undefined,
-  F extends S extends TemplateFilterSchema
-    ? TemplateFilterFunction<S>
-    : (
-        arg: JsonValue,
-        ...rest: JsonValue[]
-      ) => JsonValue | undefined = S extends TemplateFilterSchema
-    ? TemplateFilterFunction<S>
+  S extends TemplateFilterSchema<any, any> | undefined,
+  F extends S extends TemplateFilterSchema<any, any>
+    ? z.infer<ReturnType<S>>
     : (arg: JsonValue, ...rest: JsonValue[]) => JsonValue | undefined,
 > = {
   id: string;

@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-import { CreatedTemplateFilter } from './types';
+import { JsonValue } from '@backstage/types';
+import { CreatedTemplateFilter, TemplateFilterSchema } from './types';
+import { z } from 'zod';
 
 /**
  * This function is used to create new template filters in type-safe manner.
  * @public
  */
 export const createTemplateFilter = <
-  TF extends CreatedTemplateFilter<any, any>,
+  S extends TemplateFilterSchema<any, any> | undefined,
+  F extends S extends TemplateFilterSchema<any, any>
+    ? z.infer<ReturnType<S>>
+    : (arg: JsonValue, ...rest: JsonValue[]) => JsonValue | undefined,
 >(
-  filter: TF,
-): CreatedTemplateFilter<any, any> => {
+  filter: CreatedTemplateFilter<S, F>,
+): CreatedTemplateFilter<S, F> => {
   return filter;
 };
