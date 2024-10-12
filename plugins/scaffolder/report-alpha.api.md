@@ -285,15 +285,15 @@ export const scaffolderTranslationRef: TranslationRef<
     readonly 'templateExtensions.subtitle': 'This is the collection of available template extensions';
     readonly 'templateExtensions.emptyState.title': 'No information to display';
     readonly 'templateExtensions.emptyState.description': 'There are no template extensions available or there was an issue communicating with the backend.';
-    readonly 'templateExtensions.filters.title': 'Template filters';
+    readonly 'templateExtensions.filters.title': 'Filters';
     readonly 'templateExtensions.filters.schema.input': 'Input';
     readonly 'templateExtensions.filters.schema.output': 'Output';
     readonly 'templateExtensions.filters.schema.arguments': 'Arguments';
     readonly 'templateExtensions.filters.examples': 'Examples';
     readonly 'templateExtensions.filters.metadataAbsent': 'Filter metadata unavailable';
     readonly 'templateExtensions.pageTitle': 'Template extensions';
-    readonly 'templateExtensions.globals.values.title': 'Template global values';
-    readonly 'templateExtensions.globals.functions.title': 'Template global functions';
+    readonly 'templateExtensions.globals.values.title': 'Values';
+    readonly 'templateExtensions.globals.functions.title': 'Functions';
     readonly 'templateExtensions.globals.functions.schema.output': 'Output';
     readonly 'templateExtensions.globals.functions.schema.arguments': 'Arguments';
     readonly 'templateExtensions.globals.functions.examples': 'Examples';

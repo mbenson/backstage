@@ -246,7 +246,7 @@ export interface ScaffolderApi {
     tasks: ScaffolderTask[];
     totalTasks?: number;
   }>;
-  listTemplateExtensions(): Promise<ListTemplateExtensionsResponse>;
+  listTemplateExtensions?(): Promise<ListTemplateExtensionsResponse>;
   retry?(taskId: string): Promise<void>;
   scaffold(
     options: ScaffolderScaffoldOptions,

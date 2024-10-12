@@ -5,13 +5,13 @@
 ```ts
 /// <reference types="node" />
 
-import { CreatedTemplateFilter } from '@backstage/plugin-scaffolder-node';
-import { CreatedTemplateGlobal } from '@backstage/plugin-scaffolder-node';
 import { ExtensionPoint } from '@backstage/backend-plugin-api';
+import { JsonValue } from '@backstage/types';
 import { TaskBroker } from '@backstage/plugin-scaffolder-node';
 import { TemplateAction } from '@backstage/plugin-scaffolder-node';
 import { TemplateFilter } from '@backstage/plugin-scaffolder-node';
 import { TemplateGlobal } from '@backstage/plugin-scaffolder-node';
+import { z } from 'zod';
 
 // @alpha
 export type AutocompleteHandler = ({
@@ -27,6 +27,81 @@ export type AutocompleteHandler = ({
     title: string;
   }[];
 }>;
+
+// Warning: (ae-forgotten-export) The symbol "TemplateFilter_2" needs to be exported by the entry point alpha.d.ts
+//
+// @alpha (undocumented)
+export type CreatedTemplateFilter<
+  TSchema extends TemplateFilterSchema | undefined | unknown = unknown,
+  TFilterSchema extends TSchema extends TemplateFilterSchema
+    ? TemplateFilterFunction<TSchema>
+    : TSchema extends unknown
+    ? unknown
+    : TemplateFilter_2 = TSchema extends TemplateFilterSchema
+    ? TemplateFilterFunction<TSchema>
+    : TSchema extends unknown
+    ? unknown
+    : TemplateFilter_2,
+> = {
+  id: string;
+  description?: string;
+  examples?: TemplateFilterExample[];
+  schema?: TSchema;
+  filter: TFilterSchema;
+};
+
+// @alpha (undocumented)
+export type CreatedTemplateGlobal =
+  | CreatedTemplateGlobalValue
+  | CreatedTemplateGlobalFunction<unknown, unknown>;
+
+// Warning: (ae-forgotten-export) The symbol "TemplateGlobal_2" needs to be exported by the entry point alpha.d.ts
+//
+// @alpha (undocumented)
+export type CreatedTemplateGlobalFunction<
+  TSchema extends TemplateGlobalFunctionSchema | undefined | unknown = unknown,
+  TFilterSchema extends TSchema extends TemplateGlobalFunctionSchema
+    ? SchemaCompliantTemplateGlobalFunction<TSchema>
+    : TSchema extends unknown
+    ? unknown
+    : Exclude<
+        TemplateGlobal_2,
+        JsonValue
+      > = TSchema extends TemplateGlobalFunctionSchema
+    ? SchemaCompliantTemplateGlobalFunction<TSchema>
+    : TSchema extends unknown
+    ? unknown
+    : Exclude<TemplateGlobal_2, JsonValue>,
+> = {
+  id: string;
+  description?: string;
+  examples?: TemplateGlobalFunctionExample[];
+  schema?: TSchema;
+  fn: TFilterSchema;
+};
+
+// @alpha (undocumented)
+export type CreatedTemplateGlobalValue<T extends JsonValue = JsonValue> = {
+  id: string;
+  value: T;
+  description?: string;
+};
+
+// @alpha
+export const createTemplateFilter: <
+  TF extends CreatedTemplateFilter<unknown, unknown>,
+>(
+  filter: TF,
+) => CreatedTemplateFilter<unknown, unknown>;
+
+// @alpha
+export const createTemplateGlobal: <
+  T extends
+    | CreatedTemplateGlobalFunction<unknown, unknown>
+    | CreatedTemplateGlobalValue,
+>(
+  t: T,
+) => T;
 
 // @alpha
 export const restoreWorkspace: (opts: {
@@ -91,10 +166,68 @@ export interface ScaffolderWorkspaceProviderExtensionPoint {
 // @alpha
 export const scaffolderWorkspaceProviderExtensionPoint: ExtensionPoint<ScaffolderWorkspaceProviderExtensionPoint>;
 
+// @alpha (undocumented)
+export type SchemaCompliantTemplateGlobalFunction<
+  T extends TemplateGlobalFunctionSchema,
+> = z.ZodFunction<
+  z.ZodTuple<
+    [
+      ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
+        ? Items
+        : [ReturnType<NonNullable<T['arguments']>>]),
+    ]
+  >,
+  T['output'] extends (zImpl: typeof z) => z.ZodType
+    ? ReturnType<T['output']>
+    : z.ZodUnknown
+>;
+
 // @alpha
 export const serializeWorkspace: (opts: { path: string }) => Promise<{
   contents: Buffer;
 }>;
+
+// @alpha (undocumented)
+export type TemplateFilterExample = {
+  description?: string;
+  example: string;
+  notes?: string;
+};
+
+// @alpha (undocumented)
+export type TemplateFilterFunction<T extends TemplateFilterSchema> =
+  z.ZodFunction<
+    z.ZodTuple<
+      [
+        T['input'] extends (zImpl: typeof z) => z.ZodType
+          ? ReturnType<T['input']>
+          : z.ZodAny,
+        ...(T['arguments'] extends (zImpl: typeof z) => z.ZodTuple<infer Items>
+          ? Items
+          : [ReturnType<NonNullable<T['arguments']>>]),
+      ]
+    >,
+    T['output'] extends (zImpl: typeof z) => z.ZodType
+      ? ReturnType<T['output']>
+      : z.ZodUnknown
+  >;
+
+// @alpha (undocumented)
+export type TemplateFilterSchema = {
+  [K in 'input' | 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
+};
+
+// @alpha (undocumented)
+export type TemplateGlobalFunctionExample = {
+  description?: string;
+  example: string;
+  notes?: string;
+};
+
+// @alpha (undocumented)
+export type TemplateGlobalFunctionSchema = {
+  [K in 'arguments' | 'output']?: (zImpl: typeof z) => z.ZodType;
+};
 
 // @alpha
 export interface WorkspaceProvider {
@@ -117,15 +250,25 @@ export interface WorkspaceProvider {
 
 // Warnings were encountered during analysis:
 //
-// src/alpha.d.ts:9:5 - (ae-undocumented) Missing documentation for "addActions".
-// src/alpha.d.ts:23:5 - (ae-undocumented) Missing documentation for "setTaskBroker".
-// src/alpha.d.ts:37:5 - (ae-undocumented) Missing documentation for "addTemplateFilters".
-// src/alpha.d.ts:38:5 - (ae-undocumented) Missing documentation for "addTemplateGlobals".
-// src/alpha.d.ts:64:5 - (ae-undocumented) Missing documentation for "addAutocompleteProvider".
-// src/alpha.d.ts:81:5 - (ae-undocumented) Missing documentation for "serializeWorkspace".
-// src/alpha.d.ts:85:5 - (ae-undocumented) Missing documentation for "cleanWorkspace".
-// src/alpha.d.ts:88:5 - (ae-undocumented) Missing documentation for "rehydrateWorkspace".
-// src/alpha.d.ts:99:5 - (ae-undocumented) Missing documentation for "addProviders".
+// src/alpha.d.ts:13:5 - (ae-undocumented) Missing documentation for "addActions".
+// src/alpha.d.ts:27:5 - (ae-undocumented) Missing documentation for "setTaskBroker".
+// src/alpha.d.ts:41:5 - (ae-undocumented) Missing documentation for "addTemplateFilters".
+// src/alpha.d.ts:42:5 - (ae-undocumented) Missing documentation for "addTemplateGlobals".
+// src/alpha.d.ts:68:5 - (ae-undocumented) Missing documentation for "addAutocompleteProvider".
+// src/alpha.d.ts:85:5 - (ae-undocumented) Missing documentation for "serializeWorkspace".
+// src/alpha.d.ts:89:5 - (ae-undocumented) Missing documentation for "cleanWorkspace".
+// src/alpha.d.ts:92:5 - (ae-undocumented) Missing documentation for "rehydrateWorkspace".
+// src/alpha.d.ts:103:5 - (ae-undocumented) Missing documentation for "addProviders".
+// src/filters/types.d.ts:4:1 - (ae-undocumented) Missing documentation for "TemplateFilterSchema".
+// src/filters/types.d.ts:8:1 - (ae-undocumented) Missing documentation for "TemplateFilterExample".
+// src/filters/types.d.ts:14:1 - (ae-undocumented) Missing documentation for "TemplateFilterFunction".
+// src/filters/types.d.ts:19:1 - (ae-undocumented) Missing documentation for "CreatedTemplateFilter".
+// src/globals/types.d.ts:5:1 - (ae-undocumented) Missing documentation for "CreatedTemplateGlobalValue".
+// src/globals/types.d.ts:11:1 - (ae-undocumented) Missing documentation for "TemplateGlobalFunctionSchema".
+// src/globals/types.d.ts:15:1 - (ae-undocumented) Missing documentation for "SchemaCompliantTemplateGlobalFunction".
+// src/globals/types.d.ts:19:1 - (ae-undocumented) Missing documentation for "TemplateGlobalFunctionExample".
+// src/globals/types.d.ts:25:1 - (ae-undocumented) Missing documentation for "CreatedTemplateGlobalFunction".
+// src/globals/types.d.ts:33:1 - (ae-undocumented) Missing documentation for "CreatedTemplateGlobal".
 
 // (No @packageDocumentation comment for this package)
 ```
