@@ -37,10 +37,20 @@ export type TemplateActionOptions<
   description?: string;
   examples?: TemplateExample[];
   supportsDryRun?: boolean;
-  schema?: {
-    input?: TInputSchema;
-    output?: TOutputSchema;
-  };
+  schema?: [TInputSchema, TOutputSchema] extends [
+    z.ZodObject<any>,
+    z.ZodObject<any>,
+  ]
+    ? (
+        zodImpl: typeof z,
+      ) => z.ZodPipeline<
+        Extract<TInputSchema, z.ZodObject<any>>,
+        Extract<TOutputSchema, z.ZodObject<any>>
+      >
+    : {
+        input?: TInputSchema;
+        output?: TOutputSchema;
+      };
   handler: (ctx: ActionContext<TActionInput, TActionOutput>) => Promise<void>;
 };
 
@@ -76,22 +86,31 @@ export const createTemplateAction = <
     TOutputSchema
   >,
 ): TemplateAction<TActionInput, TActionOutput> => {
-  const inputSchema =
-    action.schema?.input && 'safeParseAsync' in action.schema.input
-      ? zodToJsonSchema(action.schema.input)
-      : action.schema?.input;
+  let inputSchema: Schema | undefined;
+  let outputSchema: Schema | undefined;
 
-  const outputSchema =
-    action.schema?.output && 'safeParseAsync' in action.schema.output
-      ? zodToJsonSchema(action.schema.output)
-      : action.schema?.output;
+  if (typeof action.schema === 'function') {
+    const pipe = action.schema(z);
 
+    inputSchema = zodToJsonSchema(pipe._def.in) as Schema;
+    outputSchema = zodToJsonSchema(pipe._def.out) as Schema;
+  } else if (action.schema) {
+    inputSchema =
+      action.schema.input instanceof z.ZodType
+        ? (zodToJsonSchema(action.schema.input) as Schema)
+        : action.schema.input;
+
+    outputSchema =
+      action.schema.output instanceof z.ZodType
+        ? (zodToJsonSchema(action.schema.output) as Schema)
+        : action.schema?.output;
+  }
   return {
     ...action,
     schema: {
       ...action.schema,
-      input: inputSchema as TInputSchema,
-      output: outputSchema as TOutputSchema,
+      input: inputSchema,
+      output: outputSchema,
     },
   };
 };

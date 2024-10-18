@@ -139,6 +139,19 @@ describe('NunjucksWorkflowRunner', () => {
       }) as TemplateAction,
     );
 
+    actionRegistry.register(
+      createTemplateAction({
+        id: 'jest-zod-callback-validated-action',
+        description: 'Mock action for testing',
+        handler: fakeActionHandler,
+        supportsDryRun: true,
+        schema: (zodImpl: typeof z) =>
+          zodImpl
+            .object({ foo: z.number() })
+            .pipe(z.object({ bar: z.string() })),
+      }) as TemplateAction,
+    );
+
     actionRegistry.register({
       id: 'output-action',
       description: 'Mock action for testing',
@@ -233,6 +246,45 @@ describe('NunjucksWorkflowRunner', () => {
             id: 'test',
             name: 'name',
             action: 'jest-zod-validated-action',
+            input: { foo: 1 },
+          },
+        ],
+      });
+
+      await runner.execute(task);
+
+      expect(fakeActionHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw an error if the action has a zod callback schema and the input does not match', async () => {
+      const task = createMockTaskWithSpec({
+        apiVersion: 'scaffolder.backstage.io/v1beta3',
+        parameters: {},
+        output: {},
+        steps: [
+          {
+            id: 'test',
+            name: 'name',
+            action: 'jest-zod-callback-validated-action',
+          },
+        ],
+      });
+
+      await expect(runner.execute(task)).rejects.toThrow(
+        /Invalid input passed to action jest-zod-callback-validated-action, instance requires property \"foo\"/,
+      );
+    });
+
+    it('should run the action when the zod callback validation passes', async () => {
+      const task = createMockTaskWithSpec({
+        apiVersion: 'scaffolder.backstage.io/v1beta3',
+        parameters: {},
+        output: {},
+        steps: [
+          {
+            id: 'test',
+            name: 'name',
+            action: 'jest-zod-callback-validated-action',
             input: { foo: 1 },
           },
         ],
