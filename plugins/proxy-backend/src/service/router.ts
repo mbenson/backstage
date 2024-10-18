@@ -29,7 +29,6 @@ import { JsonObject } from '@backstage/types';
 import {
   DiscoveryService,
   HttpRouterService,
-  RootConfigService,
 } from '@backstage/backend-plugin-api';
 
 // A list of headers that are always forwarded to the proxy targets.
@@ -59,7 +58,7 @@ const safeForwardHeaders = [
  */
 export interface RouterOptions {
   logger: Logger;
-  config: RootConfigService;
+  config: Config;
   discovery: DiscoveryService;
   skipInvalidProxies?: boolean;
   reviveConsumedRequestBodies?: boolean;

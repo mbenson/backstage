@@ -4,10 +4,10 @@
 
 ```ts
 import { BackendFeature } from '@backstage/backend-plugin-api';
+import { Config } from '@backstage/config';
 import { DiscoveryService } from '@backstage/backend-plugin-api';
 import express from 'express';
 import { Logger } from 'winston';
-import { RootConfigService } from '@backstage/backend-plugin-api';
 
 // @public @deprecated
 export function createRouter(options: RouterOptions): Promise<express.Router>;
@@ -19,7 +19,7 @@ export default proxyPlugin;
 // @public @deprecated (undocumented)
 export interface RouterOptions {
   // (undocumented)
-  config: RootConfigService;
+  config: Config;
   // (undocumented)
   discovery: DiscoveryService;
   // (undocumented)
