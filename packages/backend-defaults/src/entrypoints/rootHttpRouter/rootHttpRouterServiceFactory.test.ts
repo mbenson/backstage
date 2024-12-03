@@ -71,4 +71,49 @@ describe('rootHttpRouterServiceFactory', () => {
 
     expect('test').toBe('test');
   });
+
+  it('should stop the server before shutdown', async () => {
+    let app: Express | undefined = undefined;
+
+    const tester = ServiceFactoryTester.from(
+      rootHttpRouterServiceFactory({
+        configure(options) {
+          options.applyDefaults();
+          app = options.app;
+        },
+      }),
+      {
+        dependencies: [
+          mockServices.rootConfig.factory({
+            data: {
+              app: { baseUrl: 'http://localhost' },
+              backend: {
+                baseUrl: 'http://localhost',
+                listen: { host: '', port: 0 },
+              },
+            },
+          }),
+        ],
+      },
+    );
+
+    await tester.getSubject();
+
+    // Trigger creation of the http service, accessing the app instance through the configure callback
+    const lifecycle = await tester.getService(coreServices.rootLifecycle);
+
+    await (lifecycle as any).startup(); // Trigger startup by calling the private startup method
+
+    await request(app!).get('/.backstage/health/v1/readiness').expect(200, {
+      status: 'ok',
+    });
+
+    await (lifecycle as any).beforeShutdown();
+    await request(app!).get('/.backstage/health/v1/readiness').expect(503, {
+      message: 'Backend has not started yet',
+      status: 'error',
+    });
+
+    expect('test').toBe('test');
+  });
 });
