@@ -16,7 +16,7 @@
 import { featureFlagsApiRef, useApi } from '@backstage/core-plugin-api';
 import { TemplatePresentationV1beta3 } from '@backstage/plugin-scaffolder-common';
 import { JsonObject } from '@backstage/types';
-import { UiSchema } from '@rjsf/utils';
+import { UiSchema, withIdRefPrefix } from '@rjsf/utils';
 import { TemplateParameterSchema } from '@backstage/plugin-scaffolder-react';
 import { extractSchemaFromStep } from '../lib';
 
@@ -48,7 +48,7 @@ export const useTemplateSchema = (
   const steps = manifest.steps.map(({ title, description, schema }) => ({
     title,
     description,
-    mergedSchema: schema,
+    mergedSchema: withIdRefPrefix(schema),
     ...extractSchemaFromStep(schema),
   }));
 
