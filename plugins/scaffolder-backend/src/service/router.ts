@@ -112,7 +112,14 @@ import {
   parseStringsParam,
 } from './helpers';
 import { scaffolderActionRules, scaffolderTemplateRules } from './rules';
-import { templateFilterImpls, templateGlobals } from '../util/templating';
+import {
+  templateFilterImpls,
+  templateFilterMetadata,
+  templateGlobalFunctionMetadata,
+  templateGlobalValueMetadata,
+  templateGlobals,
+} from '../util/templating';
+import filters from '../lib/templating/filters';
 
 /**
  *
@@ -370,6 +377,7 @@ export async function createRouter(
   }
 
   const actionRegistry = new TemplateActionRegistry();
+
   const templateExtensions = {
     additionalTemplateFilters: templateFilterImpls(additionalTemplateFilters),
     additionalTemplateGlobals: templateGlobals(additionalTemplateGlobals),
@@ -1104,6 +1112,18 @@ export async function createRouter(
       });
 
       res.status(200).json({ results });
+    })
+    .get('/v2/template-extensions', async (_req, res) => {
+      res.status(200).json({
+        filters: {
+          ...templateFilterMetadata(filters({ integrations })),
+          ...templateFilterMetadata(additionalTemplateFilters),
+        },
+        globals: {
+          functions: templateGlobalFunctionMetadata(additionalTemplateGlobals),
+          values: templateGlobalValueMetadata(additionalTemplateGlobals),
+        },
+      });
     });
 
   const app = express();
